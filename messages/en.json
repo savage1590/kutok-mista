@@ -1,0 +1,29 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "catalog": "Catalog",
+    "about": "About Us",
+    "contact": "Contact"
+  },
+  "Cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "checkout": "Checkout",
+    "total": "Total",
+    "subtotal": "Subtotal"
+  },
+  "Product": {
+    "addToCart": "Add to Cart",
+    "onDemand": "On Demand",
+    "productionTime": "5-day production time",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "sizeChart": "Size Chart",
+    "materials": "Material"
+  },
+  "Home": {
+    "heroTitle": "Urban Aesthetics in Every Detail",
+    "heroSubtitle": "Minimalist apparel and 3D-printed artifacts.",
+    "shopNow": "Shop Now"
+  }
+}
