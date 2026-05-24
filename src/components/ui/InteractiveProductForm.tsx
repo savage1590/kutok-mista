@@ -5,7 +5,7 @@ import { Product } from "@/lib/types";
 import { useTranslations, useLocale } from "next-intl";
 import { useCartStore } from "@/lib/store";
 import WishlistButton from "./WishlistButton";
-import { Truck, CreditCard, Info } from "lucide-react";
+import { Truck, CreditCard, Info, Ruler } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function InteractiveProductForm({ product, sizeChart }: { product: Product; sizeChart?: any }) {
@@ -29,7 +29,7 @@ export default function InteractiveProductForm({ product, sizeChart }: { product
   return (
     <div className="flex flex-col gap-6 mt-6">
       
-      {propertyKeys.map(key => {
+      {propertyKeys.map((key, index) => {
         const schema = propertiesSchema.find(s => s.name === key);
         const label = schema ? (locale === 'ua' ? schema.label_ua : schema.label_en) : key;
         const options = product.properties[key];
@@ -40,11 +40,12 @@ export default function InteractiveProductForm({ product, sizeChart }: { product
               <span className="font-semibold text-foreground uppercase tracking-wide text-sm">
                 {label}
               </span>
-              {key === 'sizes' && sizeChart && (
+              {index === 0 && sizeChart && (
                 <button 
                   onClick={() => setIsSizeChartOpen(true)}
-                  className="text-brand text-sm font-medium hover:underline"
+                  className="text-brand text-sm font-medium hover:underline flex items-center gap-1"
                 >
+                  <Ruler className="w-4 h-4" />
                   {t("sizeChart")}
                 </button>
               )}
