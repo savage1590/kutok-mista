@@ -28,7 +28,7 @@ export default async function Home({
   const homeCategories = categoriesData?.value || [];
 
   return (
-    <main className="flex min-h-screen flex-col items-center">
+    <main className="flex-1 flex flex-col min-h-screen">
       <HeroCarousel banners={banners as any[]} />
       <HomeCategories categories={homeCategories as any[]} locale={locale} />
       <HomeFeatured locale={locale} />
