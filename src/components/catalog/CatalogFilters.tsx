@@ -6,17 +6,29 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { SlidersHorizontal, X } from "lucide-react";
 
+interface Collection {
+  id: string;
+  name_ua: string;
+  name_en: string;
+  color: string;
+}
+
 interface CatalogFiltersProps {
   categories: Category[];
+  collections?: Collection[];
   locale: string;
 }
 
-export default function CatalogFilters({ categories, locale }: CatalogFiltersProps) {
+export default function CatalogFilters({ categories, collections = [], locale }: CatalogFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const currentCategory = searchParams.get("category");
+  // Multi-select categories
+  const currentCategories = searchParams.get("category")?.split(",").filter(Boolean) || [];
+  // Multi-select collections
+  const currentCollections = searchParams.get("collection")?.split(",").filter(Boolean) || [];
+
   const inStock = searchParams.get("in_stock") === "true";
   
   const [minPrice, setMinPrice] = useState(searchParams.get("min_price") || "");
@@ -36,6 +48,26 @@ export default function CatalogFilters({ categories, locale }: CatalogFiltersPro
       params.set(key, value);
     }
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  const toggleCategory = (slug: string) => {
+    let newSelection: string[];
+    if (currentCategories.includes(slug)) {
+      newSelection = currentCategories.filter(s => s !== slug);
+    } else {
+      newSelection = [...currentCategories, slug];
+    }
+    updateFilters("category", newSelection.length > 0 ? newSelection.join(",") : null);
+  };
+
+  const toggleCollection = (id: string) => {
+    let newSelection: string[];
+    if (currentCollections.includes(id)) {
+      newSelection = currentCollections.filter(s => s !== id);
+    } else {
+      newSelection = [...currentCollections, id];
+    }
+    updateFilters("collection", newSelection.length > 0 ? newSelection.join(",") : null);
   };
 
   const applyPrice = () => {
@@ -61,32 +93,67 @@ export default function CatalogFilters({ categories, locale }: CatalogFiltersPro
     router.push(pathname, { scroll: false });
   };
 
+  // Checkbox component for consistency
+  const Checkbox = ({ checked }: { checked: boolean }) => (
+    <div className="relative flex items-center justify-center shrink-0">
+      <div className={`w-5 h-5 border-2 rounded-md transition-colors ${checked ? 'bg-brand border-brand' : 'border-gray-300'}`} />
+      {checked && (
+        <svg className="absolute w-3 h-3 text-white pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      )}
+    </div>
+  );
+
   // The actual filter content
   const FilterContent = (
     <div className="space-y-8">
-      {/* Categories */}
+      {/* Categories (Multi-select) */}
       <div>
         <h3 className="text-lg font-bold text-foreground mb-4">
           {locale === "ua" ? "Категорії" : "Categories"}
         </h3>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <button
             onClick={() => updateFilters("category", null)}
-            className={`text-left px-3 py-2 rounded-lg transition-colors ${!currentCategory ? 'bg-brand/10 text-brand font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
+            className={`text-left px-3 py-2 rounded-lg transition-colors ${currentCategories.length === 0 ? 'bg-brand/10 text-brand font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
           >
             {locale === "ua" ? "Усі товари" : "All Products"}
           </button>
           {categories.map(cat => (
             <button
               key={cat.id}
-              onClick={() => updateFilters("category", cat.slug)}
-              className={`text-left px-3 py-2 rounded-lg transition-colors ${currentCategory === cat.slug ? 'bg-brand/10 text-brand font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
+              onClick={() => toggleCategory(cat.slug)}
+              className={`text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-3 ${currentCategories.includes(cat.slug) ? 'bg-brand/10 text-brand font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
             >
+              <Checkbox checked={currentCategories.includes(cat.slug)} />
               {locale === "ua" ? cat.name_ua : cat.name_en}
             </button>
           ))}
         </div>
       </div>
+
+      {/* Collections (Multi-select) */}
+      {collections.length > 0 && (
+        <div>
+          <h3 className="text-lg font-bold text-foreground mb-4">
+            {locale === "ua" ? "Колекції" : "Collections"}
+          </h3>
+          <div className="flex flex-col gap-1">
+            {collections.map(col => (
+              <button
+                key={col.id}
+                onClick={() => toggleCollection(col.id)}
+                className={`text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-3 ${currentCollections.includes(col.id) ? 'bg-brand/10 text-brand font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                <Checkbox checked={currentCollections.includes(col.id)} />
+                <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: col.color || '#888' }} />
+                {locale === "ua" ? col.name_ua : col.name_en}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Price */}
       <div>

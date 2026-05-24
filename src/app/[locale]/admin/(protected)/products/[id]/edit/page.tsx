@@ -44,9 +44,17 @@ export default async function EditProductPage({
 
  const sizeCharts = sizeChartsData?.value || [];
 
+ const { data: collectionsData } = await supabaseAdmin
+    .from("settings")
+    .select("value")
+    .eq("key", "collections")
+    .single();
+
+ const collections = collectionsData?.value || [];
+
  return (
  <div className="flex-1 bg-gray-50 min-h-[calc(100vh-4rem)]">
- <ProductFormClient initialProduct={formattedProduct} categories={categories || []} sizeCharts={sizeCharts as any[]} />
+ <ProductFormClient initialProduct={formattedProduct} categories={categories || []} sizeCharts={sizeCharts as any[]} collections={collections as any[]} />
  </div>
 );
 }

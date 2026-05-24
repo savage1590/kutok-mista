@@ -72,3 +72,17 @@ export async function saveSizeCharts(sizeCharts: unknown[]) {
   if (error) return { error: error.message };
   return { success: true };
 }
+
+export async function saveCollections(collections: unknown[]) {
+  const isAuthorized = await verifyAdminAccess();
+  if (!isAuthorized) {
+    return { error: "Unauthorized" };
+  }
+
+  const { error } = await supabaseAdmin
+    .from("settings")
+    .upsert({ key: "collections", value: collections });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}

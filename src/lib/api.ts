@@ -3,7 +3,8 @@ import { Product } from "./types";
 import { MOCK_PRODUCTS } from "./mockData";
 
 export interface ProductFilters {
-  category?: string;
+  category?: string; // comma-separated slugs e.g. "tshirts,hoodies"
+  collection?: string; // comma-separated collection ids
   min_price?: number;
   max_price?: number;
   in_stock?: boolean;
@@ -24,8 +25,11 @@ export async function getCategories() {
 }
 
 export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
-  // We use `categories!inner(*)` if we want to filter by category slug
-  const selectQuery = filters?.category 
+  // Parse multi-category slugs
+  const categorySlugs = filters?.category ? filters.category.split(',').filter(Boolean) : [];
+  const hasCategory = categorySlugs.length > 0;
+
+  const selectQuery = hasCategory
     ? `*, categories!inner(*), product_images(image_url, is_primary)`
     : `*, categories(*), product_images(image_url, is_primary)`;
 
@@ -33,8 +37,12 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
     .from('products')
     .select(selectQuery);
 
-  if (filters?.category) {
-    query = query.eq('categories.slug', filters.category);
+  if (hasCategory) {
+    if (categorySlugs.length === 1) {
+      query = query.eq('categories.slug', categorySlugs[0]);
+    } else {
+      query = query.in('categories.slug', categorySlugs);
+    }
   }
 
   if (filters?.min_price !== undefined) {
@@ -54,7 +62,6 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
   } else if (filters?.sort === 'price_desc') {
     query = query.order('price', { ascending: false });
   } else {
-    // newest by default
     query = query.order('created_at', { ascending: false });
   }
 
@@ -69,7 +76,7 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
   }
 
   // Transform the joined data to match the Product interface
-  return data.map((item: any) => {
+  let products = data.map((item: any) => {
     const images = item.product_images as any[];
     const primaryImage = images?.find(img => img.is_primary)?.image_url 
       || images?.[0]?.image_url 
@@ -80,6 +87,17 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
       image_url: primaryImage
     };
   });
+
+  // Filter by collection client-side (collection_ids stored in properties)
+  if (filters?.collection) {
+    const collectionIds = filters.collection.split(',').filter(Boolean);
+    products = products.filter(p => {
+      const productCollections: string[] = p.properties?.collection_ids || [];
+      return collectionIds.some(cId => productCollections.includes(cId));
+    });
+  }
+
+  return products;
 }
 
 export async function getProductById(id: string): Promise<Product | null> {

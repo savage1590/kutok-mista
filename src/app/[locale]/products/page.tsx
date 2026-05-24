@@ -1,5 +1,6 @@
 import ProductCard from "@/components/ui/ProductCard";
 import { getProducts, getCategories } from "@/lib/api";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import CatalogFilters from "@/components/catalog/CatalogFilters";
 import CatalogSort from "@/components/catalog/CatalogSort";
 
@@ -15,16 +16,20 @@ export default async function ProductsPage({
 
   const filters = {
     category: resolvedSearchParams.category,
+    collection: resolvedSearchParams.collection,
     min_price: resolvedSearchParams.min_price ? parseInt(resolvedSearchParams.min_price, 10) : undefined,
     max_price: resolvedSearchParams.max_price ? parseInt(resolvedSearchParams.max_price, 10) : undefined,
     in_stock: resolvedSearchParams.in_stock === "true",
     sort: resolvedSearchParams.sort,
   };
 
-  const [products, categories] = await Promise.all([
+  const [products, categories, collectionsData] = await Promise.all([
     getProducts(filters),
-    getCategories()
+    getCategories(),
+    supabaseAdmin.from("settings").select("value").eq("key", "collections").single()
   ]);
+
+  const collections = (collectionsData?.data?.value || []) as any[];
   
   return (
     <main className="flex-1 container mx-auto px-4 py-12">
@@ -41,7 +46,7 @@ export default async function ProductsPage({
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Filters */}
-        <CatalogFilters categories={categories || []} locale={locale} />
+        <CatalogFilters categories={categories || []} collections={collections} locale={locale} />
 
         {/* Product Grid & Sort */}
         <div className="flex-1">
@@ -66,7 +71,7 @@ export default async function ProductsPage({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} locale={locale} />
+                <ProductCard key={product.id} product={product} locale={locale} collections={collections} />
               ))}
             </div>
           )}

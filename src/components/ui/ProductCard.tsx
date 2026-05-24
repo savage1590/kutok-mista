@@ -12,12 +12,17 @@ import toast from "react-hot-toast";
 interface ProductCardProps {
   product: Product;
   locale: string;
+  collections?: any[];
 }
 
-export default function ProductCard({ product, locale }: ProductCardProps) {
+export default function ProductCard({ product, locale, collections = [] }: ProductCardProps) {
   const t = useTranslations("Product");
   const name = locale === "ua" ? product.name_ua : product.name_en;
   const categoryName = product.categories ? (locale === "ua" ? product.categories.name_ua : product.categories.name_en) : product.type;
+  
+  // Resolve product collections
+  const productCollectionIds: string[] = product.properties?.collection_ids || [];
+  const productCollections = collections.filter(c => productCollectionIds.includes(c.id));
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
@@ -63,6 +68,15 @@ export default function ProductCard({ product, locale }: ProductCardProps) {
               {t("outOfStock")}
             </span>
           )}
+          {productCollections.map(col => (
+            <span 
+              key={col.id}
+              className="text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm"
+              style={{ backgroundColor: col.color || '#888' }}
+            >
+              {locale === "ua" ? col.name_ua : col.name_en}
+            </span>
+          ))}
         </div>
 
         <div className="absolute top-3 right-3 z-10">

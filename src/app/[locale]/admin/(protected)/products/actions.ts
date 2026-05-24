@@ -46,6 +46,12 @@ export async function saveProduct(formData: FormData, productId?: string) {
   if (size_chart_id) {
     properties.size_chart_id = size_chart_id;
   }
+
+  // Save collection IDs
+  const collectionIds = formData.getAll("collection_id") as string[];
+  if (collectionIds.length > 0) {
+    properties.collection_ids = collectionIds;
+  }
   
   productData.properties = properties;
 

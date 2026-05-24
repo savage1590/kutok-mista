@@ -34,6 +34,19 @@ export default async function ProductPage({
     sizeChart = allCharts.find(c => c.id === sizeChartId) || null;
   }
 
+  // Fetch collections
+  let productCollections: any[] = [];
+  const collectionIds: string[] = product.properties?.collection_ids || [];
+  if (collectionIds.length > 0) {
+    const { data: collectionsData } = await supabaseAdmin
+      .from("settings")
+      .select("value")
+      .eq("key", "collections")
+      .single();
+    const allCollections = (collectionsData?.value || []) as any[];
+    productCollections = allCollections.filter(c => collectionIds.includes(c.id));
+  }
+
   return (
     <main className="flex-1 bg-white">
       <div className="container mx-auto px-4 py-8">
@@ -64,6 +77,15 @@ export default async function ProductPage({
                   {t("productionTime")}
                 </span>
               )}
+              {productCollections.map(col => (
+                <span 
+                  key={col.id}
+                  className="text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg"
+                  style={{ backgroundColor: col.color || '#888' }}
+                >
+                  {locale === "ua" ? col.name_ua : col.name_en}
+                </span>
+              ))}
             </div>
           </div>
 
