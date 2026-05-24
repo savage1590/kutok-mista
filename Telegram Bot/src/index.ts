@@ -2,6 +2,7 @@ import { Telegraf, Context } from 'telegraf';
 import { message } from 'telegraf/filters';
 import * as dotenv from 'dotenv';
 import path from 'path';
+import http from 'http';
 
 // Загружаем переменные окружения
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -113,6 +114,16 @@ bot.launch()
   .catch((err) => {
     console.error('Ошибка запуска бота:', err);
   });
+
+// Додаємо простий HTTP сервер, щоб Render (або інший хостинг) бачив, що додаток "живий"
+const PORT = process.env.PORT || 3000;
+const server = http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end('Telegram Bot is running!');
+});
+server.listen(PORT, () => {
+  console.log(`🌐 HTTP сервер запущено на порту ${PORT} (для health check хостингу)`);
+});
 
 // Включение плавного завершения работы
 process.once('SIGINT', () => bot.stop('SIGINT'));
