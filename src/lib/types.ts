@@ -1,8 +1,26 @@
 export type ProductType = 'apparel' | 'artifact' | 'souvenir';
 
+export interface PropertyOption {
+  name: string;
+  label_ua: string;
+  label_en: string;
+  options: string[];
+}
+
+export interface Category {
+  id: string;
+  slug: string;
+  name_ua: string;
+  name_en: string;
+  created_at: string;
+  properties_schema?: PropertyOption[];
+}
+
 export interface Product {
   id: string;
   type: ProductType;
+  category_id?: string;
+  categories?: Category;
   name_ua: string;
   name_en: string;
   description_ua: string;

@@ -3,6 +3,7 @@
 import { Product } from "@/lib/types";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
+import WishlistButton from "./WishlistButton";
 
 interface ProductCardProps {
   product: Product;
@@ -12,6 +13,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, locale }: ProductCardProps) {
   const t = useTranslations("Product");
   const name = locale === "ua" ? product.name_ua : product.name_en;
+  const categoryName = product.categories ? (locale === "ua" ? product.categories.name_ua : product.categories.name_en) : product.type;
   
   return (
     <div className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -42,6 +44,10 @@ export default function ProductCard({ product, locale }: ProductCardProps) {
             </span>
           )}
         </div>
+
+        <div className="absolute top-3 right-3 z-10">
+          <WishlistButton product={product} locale={locale} />
+        </div>
       </Link>
 
       {/* Content Area */}
@@ -52,7 +58,7 @@ export default function ProductCard({ product, locale }: ProductCardProps) {
           </h3>
         </Link>
         <p className="text-gray-500 text-sm mb-4 capitalize">
-          {product.type}
+          {categoryName}
         </p>
         
         <div className="mt-auto flex items-center justify-between">

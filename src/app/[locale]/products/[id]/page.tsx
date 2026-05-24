@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { MOCK_PRODUCTS } from "@/lib/mockData";
+import { getProductById } from "@/lib/api";
 import InteractiveProductForm from "@/components/ui/InteractiveProductForm";
 import { Link } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
@@ -11,7 +11,7 @@ export default async function ProductPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale, id } = await params;
-  const product = MOCK_PRODUCTS.find((p) => p.id === id);
+  const product = await getProductById(id);
 
   if (!product) {
     notFound();

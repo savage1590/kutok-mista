@@ -3,14 +3,49 @@
     "home": "Home",
     "catalog": "Catalog",
     "about": "About Us",
-    "contact": "Contact"
+    "contact": "Contact",
+    "wishlist": "Wishlist"
+  },
+  "Wishlist": {
+    "title": "Your Wishlist",
+    "empty": "Your wishlist is empty",
+    "goCatalog": "Go to Catalog",
+    "addToWishlist": "Add to Wishlist",
+    "removeFromWishlist": "Remove from Wishlist",
+    "added": "Added to wishlist"
   },
   "Cart": {
     "title": "Your Cart",
     "empty": "Your cart is empty",
     "checkout": "Checkout",
     "total": "Total",
-    "subtotal": "Subtotal"
+    "subtotal": "Subtotal",
+    "loading": "Loading...",
+    "goCatalog": "Go to Catalog",
+    "thanksTitle": "Thank you for your order!",
+    "thanksDesc": "Your order has been successfully placed. We will contact you shortly to confirm.",
+    "backToShopping": "Return to Shopping",
+    "checkoutTitle": "Checkout",
+    "size": "Size",
+    "material": "Material",
+    "step1Title": "Contact Data",
+    "lastName": "Last Name",
+    "firstName": "First Name",
+    "middleName": "Middle Name (optional)",
+    "email": "Email",
+    "phone": "Phone Number",
+    "next": "Next",
+    "step2Title": "Shipping",
+    "shippingInfo": "Delivery is carried out according to the carrier's tariffs, usually starting from 60 UAH",
+    "city": "City",
+    "branch": "Branch or Postomat number",
+    "step3Title": "Payment",
+    "cashOnDelivery": "Cash on delivery",
+    "cashCommission": "\"Nova Poshta\" commission: 20 UAH + 2% of the amount",
+    "fullPayment": "Full payment to account",
+    "processing": "Processing...",
+    "placeOrder": "Place Order",
+    "errorAlert": "Error placing the order. Please try again later."
   },
   "Product": {
     "addToCart": "Add to Cart",
@@ -19,11 +54,60 @@
     "inStock": "In Stock",
     "outOfStock": "Out of Stock",
     "sizeChart": "Size Chart",
-    "materials": "Material"
+    "materials": "Material",
+    "generalInfo": "General Information",
+    "deliveryTitle": "Shipping",
+    "deliveryText": "We deliver across the country. In-stock items are typically delivered within 1-2 days depending on your region. If an item is made to order or out of stock, delivery may take up to 5-6 days. We value your time, therefore, we strive to fulfill your every order in the shortest possible time.",
+    "paymentTitle": "Payment",
+    "paymentMethods": "Cash on delivery • Full payment to account"
   },
   "Home": {
-    "heroTitle": "Urban Aesthetics in Every Detail",
-    "heroSubtitle": "Minimalist apparel and 3D-printed artifacts.",
-    "shopNow": "Shop Now"
+    "slide1Title": "Urban Aesthetics in Every Detail",
+    "slide1Subtitle": "Minimalist apparel and 3D-printed artifacts.",
+    "slide1Btn": "Shop Now",
+    "slide2Title": "New Summer Collection",
+    "slide2Subtitle": "Lightness and style for warm city days.",
+    "slide2Btn": "View Collection",
+    "slide3Title": "Special Offer",
+    "slide3Subtitle": "Discounts on most popular artifacts until the end of the month.",
+    "slide3Btn": "All Promos",
+    "categoriesTitle": "Categories",
+    "catClothing": "Clothing",
+    "catAccessories": "Accessories",
+    "catDecor": "Decor",
+    "featuredTitle": "Bestsellers",
+    "adv1": "Fast delivery in Ukraine",
+    "adv2": "Unique original design",
+    "adv3": "Premium materials",
+    "adv4": "Secure payment"
+  },
+  "About": {
+    "title": "About Us",
+    "introP1": "Each of us has places that mean a little more than just points on a map. A cozy street where summer passed; a familiar building silhouette that catches your eye every day; or that special, cozy corner where the most important memories remain.",
+    "introP2": "Kutok Mista is a Ukrainian brand created to transform the special atmosphere of our hometowns into tangible artifacts. The main idea of our collections is to reflect and reimagine the recognizable architecture that shapes the character and soul of each city. We produce minimalist apparel, aesthetic souvenirs, and accessories that allow you to capture a piece of your favorite space and take it with you.",
+    "philosophyTitle": "Our Philosophy",
+    "philosophyP1": "We strive to ensure that everyone who reaches out to us can carry a piece of their home with them every day—no matter where they are. We create more than just objects; we build visual bridges to the cities that have left a mark on our hearts. For those living in their hometown, it's a way to emphasize their connection to it in daily life. For those far away, it's an opportunity to feel the comfort and warmth of their favorite corners at any moment, simply by looking at a familiar architectural silhouette.",
+    "aestheticsTitle": "Aesthetics of Form",
+    "aestheticsText": "We carefully work on graphics, turning large-scale urban landmarks into clean lines and recognizable architectural silhouettes. Our clothing features a loose oversized fit and large, expressive original prints on the back, transforming basic items into carriers of urban culture.",
+    "detailsTitle": "Attention to Detail",
+    "detailsText": "For our souvenirs and accessories, we curate a special signature palette of shades—from deep industrial to soft and refined textures—that highlight the character of every familiar childhood corner.",
+    "conclusion": "Kutok Mista is for those who appreciate modern design but choose with their heart. It’s your personal, stylish connection to home, wherever you may be.",
+    "slogan": "Kutok Mista. Your favorite city corner."
+  },
+  "Footer": {
+    "phones": "PHONES:",
+    "socials": "SOCIAL NETWORKS:",
+    "info": "INFORMATION",
+    "contacts": "CONTACTS",
+    "messengers": "MESSENGERS",
+    "workingHours": "9:00 to 22:00, no weekends"
+  },
+  "Contact": {
+    "title": "Contacts",
+    "intro": "We are always in touch. Contact us with any questions or suggestions.",
+    "emailLabel": "Email:",
+    "phonesLabel": "Phones:",
+    "messengersLabel": "Messengers:",
+    "hoursLabel": "Working Hours:"
   }
 }

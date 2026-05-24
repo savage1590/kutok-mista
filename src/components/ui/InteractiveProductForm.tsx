@@ -1,89 +1,117 @@
 "use client";
 
-import { useState } from "next";
+import { useState } from "react";
 import { Product } from "@/lib/types";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useCartStore } from "@/lib/store";
+import WishlistButton from "./WishlistButton";
+import { Truck, CreditCard, Info } from "lucide-react";
 
 export default function InteractiveProductForm({ product }: { product: Product }) {
   const t = useTranslations("Product");
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
+  const locale = useLocale();
+  const addItem = useCartStore((state) => state.addItem);
+  const [selectedProperties, setSelectedProperties] = useState<Record<string, string>>({});
   const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
 
-  const hasSizes = product.properties?.sizes && product.properties.sizes.length > 0;
-  const hasMaterials = product.properties?.materials && product.properties.materials.length > 0;
+  const propertiesSchema = product.categories?.properties_schema || [];
+  const propertyKeys = Object.keys(product.properties || {}).filter(k => Array.isArray(product.properties[k]) && product.properties[k].length > 0);
 
   const isAddToCartDisabled = 
     product.stock_status === "out_of_stock" ||
-    (hasSizes && !selectedSize) || 
-    (hasMaterials && !selectedMaterial);
+    propertyKeys.some(k => !selectedProperties[k]);
+
+  const toggleProperty = (key: string, val: string) => {
+    setSelectedProperties(prev => ({ ...prev, [key]: val }));
+  };
 
   return (
     <div className="flex flex-col gap-6 mt-6">
       
-      {/* Material Selector */}
-      {hasMaterials && (
-        <div className="flex flex-col gap-2">
-          <span className="font-semibold text-foreground uppercase tracking-wide text-sm">
-            {t("materials")}
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {product.properties.materials.map((mat: string) => (
-              <button
-                key={mat}
-                onClick={() => setSelectedMaterial(mat)}
-                className={`px-4 py-2 rounded border transition-all font-medium ${
-                  selectedMaterial === mat 
-                    ? "border-brand bg-brand text-white shadow-md" 
-                    : "border-gray-200 text-foreground hover:border-gray-400 bg-white"
-                }`}
-              >
-                {mat}
-              </button>
-            ))}
+      {propertyKeys.map(key => {
+        const schema = propertiesSchema.find(s => s.name === key);
+        const label = schema ? (locale === 'ua' ? schema.label_ua : schema.label_en) : key;
+        const options = product.properties[key];
+        
+        return (
+          <div key={key} className="flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-foreground uppercase tracking-wide text-sm">
+                {label}
+              </span>
+              {key === 'sizes' && (
+                <button 
+                  onClick={() => setIsSizeChartOpen(true)}
+                  className="text-brand text-sm font-medium hover:underline"
+                >
+                  {t("sizeChart")}
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {options.map((opt: string) => (
+                <button
+                  key={opt}
+                  onClick={() => toggleProperty(key, opt)}
+                  className={`px-4 py-2 min-w-[3rem] rounded border transition-all font-medium ${
+                    selectedProperties[key] === opt 
+                      ? "border-brand bg-brand text-white shadow-md" 
+                      : "border-gray-200 text-foreground hover:border-gray-400 bg-white"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-4 mt-4">
+        <button 
+          onClick={() => addItem(product, 1, selectedProperties)}
+          disabled={isAddToCartDisabled}
+          className="flex-1 py-4 px-8 bg-foreground hover:bg-brand text-white rounded-full font-bold text-lg transition-colors disabled:opacity-50 disabled:hover:bg-foreground"
+        >
+          {t("addToCart")}
+        </button>
+        <WishlistButton product={product} showText={false} className="w-14 h-14 bg-gray-100 hover:bg-red-50 text-gray-500" />
+      </div>
+
+      {/* General Information Block */}
+      <div className="mt-8 pt-8 border-t border-gray-100">
+        <h3 className="font-bold text-lg text-foreground flex items-center gap-2 mb-6">
+          <Info className="w-5 h-5 text-brand" />
+          {t("generalInfo")}
+        </h3>
+        
+        <div className="flex flex-col gap-6">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
+              <Truck className="w-6 h-6 text-brand" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground mb-1">{t("deliveryTitle")}</h4>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {t("deliveryText")}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
+              <CreditCard className="w-6 h-6 text-brand" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground mb-1">{t("paymentTitle")}</h4>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {t("paymentMethods")}
+              </p>
+            </div>
           </div>
         </div>
-      )}
-
-      {/* Size Selector */}
-      {hasSizes && (
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <span className="font-semibold text-foreground uppercase tracking-wide text-sm">
-              Розмір
-            </span>
-            <button 
-              onClick={() => setIsSizeChartOpen(true)}
-              className="text-brand text-sm font-medium hover:underline"
-            >
-              {t("sizeChart")}
-            </button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {product.properties.sizes.map((size: string) => (
-              <button
-                key={size}
-                onClick={() => setSelectedSize(size)}
-                className={`w-12 h-12 flex items-center justify-center rounded border transition-all font-medium ${
-                  selectedSize === size 
-                    ? "border-brand bg-brand text-white shadow-md" 
-                    : "border-gray-200 text-foreground hover:border-gray-400 bg-white"
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Add To Cart Button */}
-      <button 
-        disabled={isAddToCartDisabled}
-        className="mt-4 w-full md:w-auto py-4 px-8 bg-foreground hover:bg-brand text-white rounded-full font-bold text-lg transition-colors disabled:opacity-50 disabled:hover:bg-foreground"
-      >
-        {t("addToCart")}
-      </button>
+      </div>
 
       {/* Size Chart Modal */}
       {isSizeChartOpen && (

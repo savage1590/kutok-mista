@@ -1,20 +1,30 @@
-import { useTranslations } from "next-intl";
 import ProductCard from "@/components/ui/ProductCard";
-import { MOCK_PRODUCTS } from "@/lib/mockData";
+import { getProducts, getCategories } from "@/lib/api";
+import CatalogFilters from "@/components/catalog/CatalogFilters";
+import CatalogSort from "@/components/catalog/CatalogSort";
 
 export default async function ProductsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   const { locale } = await params;
-  
-  // Since we can't use hooks in a Server Component for translations easily without next-intl/server,
-  // Actually we CAN use useTranslations if it's not async, but in App router server components
-  // it's better to use getTranslations.
-  // Wait, I will just pass the locale down to the ProductCard, it handles its own translations if it's a client component,
-  // or we can just pass the locale.
-  // Let's use standard page layout.
+  const resolvedSearchParams = await searchParams;
+
+  const filters = {
+    category: resolvedSearchParams.category,
+    min_price: resolvedSearchParams.min_price ? parseInt(resolvedSearchParams.min_price, 10) : undefined,
+    max_price: resolvedSearchParams.max_price ? parseInt(resolvedSearchParams.max_price, 10) : undefined,
+    in_stock: resolvedSearchParams.in_stock === "true",
+    sort: resolvedSearchParams.sort,
+  };
+
+  const [products, categories] = await Promise.all([
+    getProducts(filters),
+    getCategories()
+  ]);
   
   return (
     <main className="flex-1 container mx-auto px-4 py-12">
@@ -29,10 +39,38 @@ export default async function ProductsPage({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-        {MOCK_PRODUCTS.map((product) => (
-          <ProductCard key={product.id} product={product} locale={locale} />
-        ))}
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Sidebar Filters */}
+        <CatalogFilters categories={categories || []} locale={locale} />
+
+        {/* Product Grid & Sort */}
+        <div className="flex-1">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-gray-500 font-medium">
+              {locale === "ua" ? `Знайдено товарів: ${products.length}` : `${products.length} products found`}
+            </span>
+            <CatalogSort locale={locale} />
+          </div>
+
+          {products.length === 0 ? (
+            <div className="py-20 text-center">
+              <h2 className="text-2xl font-bold mb-2">
+                {locale === "ua" ? "Нічого не знайдено" : "Nothing found"}
+              </h2>
+              <p className="text-gray-500">
+                {locale === "ua" 
+                  ? "Спробуйте змінити критерії пошуку або очистити фільтри." 
+                  : "Try changing your search criteria or clear filters."}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} locale={locale} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
