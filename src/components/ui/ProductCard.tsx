@@ -4,6 +4,10 @@ import { Product } from "@/lib/types";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import WishlistButton from "./WishlistButton";
+import { useState } from "react";
+import QuickAddModal from "./QuickAddModal";
+import { useCartStore } from "@/lib/store";
+import toast from "react-hot-toast";
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +18,22 @@ export default function ProductCard({ product, locale }: ProductCardProps) {
   const t = useTranslations("Product");
   const name = locale === "ua" ? product.name_ua : product.name_en;
   const categoryName = product.categories ? (locale === "ua" ? product.categories.name_ua : product.categories.name_en) : product.type;
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const addItem = useCartStore((state) => state.addItem);
+  
+  const hasProperties = Object.keys(product.properties || {}).some(k => Array.isArray(product.properties[k]) && product.properties[k].length > 0);
+
+  const handleAddToCartClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigating to product page
+    
+    if (hasProperties) {
+      setIsModalOpen(true);
+    } else {
+      addItem(product, 1);
+      toast.success(locale === "ua" ? "Товар додано в кошик" : "Item added to cart");
+    }
+  };
   
   return (
     <div className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -67,12 +87,20 @@ export default function ProductCard({ product, locale }: ProductCardProps) {
           </span>
           <button 
             disabled={product.stock_status === "out_of_stock"}
+            onClick={handleAddToCartClick}
             className="bg-gray-100 hover:bg-brand hover:text-white text-foreground px-4 py-2 rounded-full text-sm font-semibold transition-colors disabled:opacity-50 disabled:hover:bg-gray-100 disabled:hover:text-foreground"
           >
             {t("addToCart")}
           </button>
         </div>
       </div>
+      
+      <QuickAddModal 
+        product={product} 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        locale={locale} 
+      />
     </div>
   );
 }
