@@ -10,9 +10,10 @@ import { Link } from"@/i18n/routing";
 interface ProductFormClientProps {
  initialProduct?: Product;
  categories: Category[];
+ sizeCharts?: any[];
 }
 
-export default function ProductFormClient({ initialProduct, categories }: ProductFormClientProps) {
+export default function ProductFormClient({ initialProduct, categories, sizeCharts = [] }: ProductFormClientProps) {
   const [type, setType] = useState<ProductType>(initialProduct?.type ||"apparel");
  const [isLoading, setIsLoading] = useState(false);
  const [isDeleting, setIsDeleting] = useState(false);
@@ -143,6 +144,16 @@ export default function ProductFormClient({ initialProduct, categories }: Produc
  <option value="out_of_stock">Немає в наявності</option>
  </select>
  </div>
+
+  <div className="space-y-2">
+  <label className="text-sm font-semibold text-foreground">Розмірна сітка</label>
+  <select name="size_chart_id" defaultValue={initialProduct?.properties?.size_chart_id || ""} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-brand outline-none">
+    <option value="">Не використовувати (Без сітки)</option>
+    {sizeCharts.map(sc => (
+      <option key={sc.id} value={sc.id}>{sc.name}</option>
+    ))}
+  </select>
+  </div>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">

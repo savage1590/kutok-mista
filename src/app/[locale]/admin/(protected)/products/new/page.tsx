@@ -14,9 +14,17 @@ export default async function NewProductPage({
  .select("*")
  .order("name_ua");
 
+ const { data: sizeChartsData } = await supabaseAdmin
+   .from("settings")
+   .select("value")
+   .eq("key", "size_charts")
+   .single();
+
+ const sizeCharts = sizeChartsData?.value || [];
+
  return (
  <div className="flex-1 bg-gray-50 min-h-[calc(100vh-4rem)]">
- <ProductFormClient categories={categories || []} />
+ <ProductFormClient categories={categories || []} sizeCharts={sizeCharts as any[]} />
  </div>
 );
 }

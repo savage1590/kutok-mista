@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProductById } from "@/lib/api";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import InteractiveProductForm from "@/components/ui/InteractiveProductForm";
 import { Link } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
@@ -20,6 +21,18 @@ export default async function ProductPage({
   const t = await getTranslations("Product");
   const name = locale === "ua" ? product.name_ua : product.name_en;
   const description = locale === "ua" ? product.description_ua : product.description_en;
+
+  let sizeChart = null;
+  const sizeChartId = product.properties?.size_chart_id;
+  if (sizeChartId) {
+    const { data: sizeChartsData } = await supabaseAdmin
+      .from("settings")
+      .select("value")
+      .eq("key", "size_charts")
+      .single();
+    const allCharts = (sizeChartsData?.value || []) as any[];
+    sizeChart = allCharts.find(c => c.id === sizeChartId) || null;
+  }
 
   return (
     <main className="flex-1 bg-white">
@@ -70,7 +83,7 @@ export default async function ProductPage({
             <div className="h-px bg-gray-100 w-full mb-2" />
 
             {/* Interactive Client Component for selections and adding to cart */}
-            <InteractiveProductForm product={product} />
+            <InteractiveProductForm product={product} sizeChart={sizeChart} />
 
           </div>
         </div>

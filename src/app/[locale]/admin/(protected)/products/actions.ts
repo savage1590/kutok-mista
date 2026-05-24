@@ -42,6 +42,10 @@ export async function saveProduct(formData: FormData, productId?: string) {
       }
     }
   }
+  const size_chart_id = formData.get("size_chart_id") as string;
+  if (size_chart_id) {
+    properties.size_chart_id = size_chart_id;
+  }
   
   productData.properties = properties;
 

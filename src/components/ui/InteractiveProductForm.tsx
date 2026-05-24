@@ -8,7 +8,7 @@ import WishlistButton from "./WishlistButton";
 import { Truck, CreditCard, Info } from "lucide-react";
 import toast from "react-hot-toast";
 
-export default function InteractiveProductForm({ product }: { product: Product }) {
+export default function InteractiveProductForm({ product, sizeChart }: { product: Product; sizeChart?: any }) {
   const t = useTranslations("Product");
   const locale = useLocale();
   const addItem = useCartStore((state) => state.addItem);
@@ -40,7 +40,7 @@ export default function InteractiveProductForm({ product }: { product: Product }
               <span className="font-semibold text-foreground uppercase tracking-wide text-sm">
                 {label}
               </span>
-              {key === 'sizes' && (
+              {key === 'sizes' && sizeChart && (
                 <button 
                   onClick={() => setIsSizeChartOpen(true)}
                   className="text-brand text-sm font-medium hover:underline"
@@ -118,7 +118,7 @@ export default function InteractiveProductForm({ product }: { product: Product }
       </div>
 
       {/* Size Chart Modal */}
-      {isSizeChartOpen && (
+      {isSizeChartOpen && sizeChart && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full relative shadow-2xl">
             <button 
@@ -127,21 +127,24 @@ export default function InteractiveProductForm({ product }: { product: Product }
             >
               ✕
             </button>
-            <h2 className="text-2xl font-bold mb-4">{t("sizeChart")}</h2>
+            <h2 className="text-2xl font-bold mb-4">{sizeChart.name || t("sizeChart")}</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b-2 border-gray-100">
-                    <th className="py-2">Size</th>
-                    <th className="py-2">Chest (cm)</th>
-                    <th className="py-2">Length (cm)</th>
+                    {sizeChart.columns?.map((col: string, idx: number) => (
+                      <th key={idx} className="py-2 pr-4 whitespace-nowrap">{col}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody className="text-gray-600">
-                  <tr className="border-b border-gray-50"><td className="py-2">S</td><td className="py-2">50</td><td className="py-2">70</td></tr>
-                  <tr className="border-b border-gray-50"><td className="py-2">M</td><td className="py-2">53</td><td className="py-2">72</td></tr>
-                  <tr className="border-b border-gray-50"><td className="py-2">L</td><td className="py-2">56</td><td className="py-2">74</td></tr>
-                  <tr><td className="py-2">XL</td><td className="py-2">59</td><td className="py-2">76</td></tr>
+                  {sizeChart.rows?.map((row: Record<string, string>, rIdx: number) => (
+                    <tr key={rIdx} className="border-b border-gray-50 last:border-0">
+                      {sizeChart.columns?.map((col: string, cIdx: number) => (
+                        <td key={cIdx} className="py-2 pr-4">{row[col] || "-"}</td>
+                      ))}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
