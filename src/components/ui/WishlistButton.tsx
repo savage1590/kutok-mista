@@ -4,6 +4,7 @@ import { useWishlistStore } from "@/lib/wishlistStore";
 import { Product } from "@/lib/types";
 import { Heart } from "lucide-react";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 interface WishlistButtonProps {
   product: Product;
@@ -33,6 +34,11 @@ export default function WishlistButton({ product, className = "", showText = fal
       onClick={(e) => {
         e.preventDefault(); // Prevent navigating if inside a Link
         toggleItem(product);
+        if (active) {
+          toast.success(locale === "ua" ? "Видалено з обраного" : "Removed from wishlist");
+        } else {
+          toast.success(locale === "ua" ? "Додано в обране" : "Added to wishlist");
+        }
       }}
       className={`group flex items-center justify-center transition-all ${
         showText 

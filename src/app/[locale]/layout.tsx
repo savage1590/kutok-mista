@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { Toaster } from "react-hot-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import "../globals.css";
@@ -46,6 +47,17 @@ export default async function RootLayout({
             {children}
           </div>
           <Footer />
+          <Toaster 
+            position="bottom-right" 
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#333',
+                color: '#fff',
+                borderRadius: '10px',
+              }
+            }} 
+          />
         </NextIntlClientProvider>
       </body>
     </html>

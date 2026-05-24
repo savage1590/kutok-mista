@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useCartStore } from "@/lib/store";
 import WishlistButton from "./WishlistButton";
 import { Truck, CreditCard, Info } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function InteractiveProductForm({ product }: { product: Product }) {
   const t = useTranslations("Product");
@@ -70,7 +71,10 @@ export default function InteractiveProductForm({ product }: { product: Product }
       {/* Action Buttons */}
       <div className="flex items-center gap-4 mt-4">
         <button 
-          onClick={() => addItem(product, 1, selectedProperties)}
+          onClick={() => {
+            addItem(product, 1, selectedProperties);
+            toast.success(locale === "ua" ? "Товар додано в кошик" : "Item added to cart");
+          }}
           disabled={isAddToCartDisabled}
           className="flex-1 py-4 px-8 bg-foreground hover:bg-brand text-white rounded-full font-bold text-lg transition-colors disabled:opacity-50 disabled:hover:bg-foreground"
         >
