@@ -44,3 +44,17 @@ export async function saveContacts(contacts: Record<string, string>) {
   if (error) return { error: error.message };
   return { success: true };
 }
+
+export async function saveHomeCategories(categories: unknown[]) {
+  const isAuthorized = await verifyAdminAccess();
+  if (!isAuthorized) {
+    return { error: "Unauthorized" };
+  }
+
+  const { error } = await supabaseAdmin
+    .from("settings")
+    .upsert({ key: "home_categories", value: categories });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link, usePathname } from "@/i18n/routing";
-import { LogOut, Package, Tag, ShoppingBag, Image, Star, Phone, Menu, X } from "lucide-react";
+import { LogOut, Package, Tag, ShoppingBag, Image, Star, Phone, Menu, X, LayoutGrid } from "lucide-react";
 import { useLocale } from "next-intl";
 import { logoutAdmin } from "@/app/[locale]/admin/actions";
 
@@ -14,8 +14,9 @@ export default function AdminSidebar() {
   const navItems = [
     { href: "/admin", icon: <Package className="w-5 h-5" />, label: "Товари", exact: true },
     { href: "/admin/categories", icon: <Tag className="w-5 h-5" />, label: "Категорії" },
-    { href: "/admin/banners", icon: <Image className="w-5 h-5" />, label: "Банери" },
-    { href: "/admin/featured", icon: <Star className="w-5 h-5" />, label: "Хіти продажу" },
+    { href: "/admin/banners", icon: <Image className="w-5 h-5" />, label: "Гол. Банери" },
+    { href: "/admin/featured", icon: <Star className="w-5 h-5" />, label: "Гол. Хіти продажу" },
+    { href: "/admin/home-categories", icon: <LayoutGrid className="w-5 h-5" />, label: "Гол. Категорії" },
     { href: "/admin/contacts", icon: <Phone className="w-5 h-5" />, label: "Контакти" },
   ];
 

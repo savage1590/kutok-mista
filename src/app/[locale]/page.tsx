@@ -11,18 +11,26 @@ export default async function Home({
 }) {
   const { locale } = await params;
 
-  const { data } = await supabase
+  const { data: bannersData } = await supabase
     .from("settings")
     .select("value")
     .eq("key", "home_banners")
     .single();
 
-  const banners = data?.value || [];
-  
+  const banners = bannersData?.value || [];
+
+  const { data: categoriesData } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "home_categories")
+    .single();
+
+  const homeCategories = categoriesData?.value || [];
+
   return (
-    <main className="flex-1 flex flex-col min-h-screen">
-      <HeroCarousel banners={banners} />
-      <HomeCategories />
+    <main className="flex min-h-screen flex-col items-center">
+      <HeroCarousel banners={banners as any[]} />
+      <HomeCategories categories={homeCategories as any[]} locale={locale} />
       <HomeFeatured locale={locale} />
       <HomeAdvantages />
     </main>
