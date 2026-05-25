@@ -16,7 +16,12 @@ export default function InteractiveProductForm({ product, sizeChart }: { product
   const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
 
   const propertiesSchema = product.categories?.properties_schema || [];
-  const propertyKeys = Object.keys(product.properties || {}).filter(k => Array.isArray(product.properties[k]) && product.properties[k].length > 0);
+  const propertyKeys = Object.keys(product.properties || {}).filter(k => 
+    k !== 'collection_ids' && 
+    k !== 'size_chart_id' && 
+    Array.isArray(product.properties[k]) && 
+    product.properties[k].length > 0
+  );
 
   const isAddToCartDisabled = 
     product.stock_status === "out_of_stock" ||

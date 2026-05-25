@@ -29,7 +29,12 @@ export default function QuickAddModal({ product, isOpen, onClose, locale }: Quic
 
   const name = locale === "ua" ? product.name_ua : product.name_en;
   const propertiesSchema = product.categories?.properties_schema || [];
-  const propertyKeys = Object.keys(product.properties || {}).filter(k => Array.isArray(product.properties[k]) && product.properties[k].length > 0);
+  const propertyKeys = Object.keys(product.properties || {}).filter(k => 
+    k !== 'collection_ids' && 
+    k !== 'size_chart_id' && 
+    Array.isArray(product.properties[k]) && 
+    product.properties[k].length > 0
+  );
 
   const isAddToCartDisabled = 
     product.stock_status === "out_of_stock" ||

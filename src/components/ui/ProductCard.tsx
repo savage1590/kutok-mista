@@ -27,7 +27,12 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
   const [isModalOpen, setIsModalOpen] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
   
-  const hasProperties = Object.keys(product.properties || {}).some(k => Array.isArray(product.properties[k]) && product.properties[k].length > 0);
+  const hasProperties = Object.keys(product.properties || {}).some(k => 
+    k !== 'collection_ids' && 
+    k !== 'size_chart_id' && 
+    Array.isArray(product.properties[k]) && 
+    product.properties[k].length > 0
+  );
 
   const handleAddToCartClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigating to product page
