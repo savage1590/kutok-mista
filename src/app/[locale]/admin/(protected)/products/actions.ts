@@ -77,35 +77,51 @@ export async function saveProduct(formData: FormData, productId?: string) {
     newProductId = data.id;
   }
 
-  // Handle Image Upload if provided
-  const imageFile = formData.get("image") as File;
-  if (imageFile && imageFile.size > 0) {
-    const fileExt = imageFile.name.split('.').pop();
-    const fileName = `${newProductId}-${Date.now()}.${fileExt}`;
-    
-    const { error: uploadError } = await supabaseAdmin
-      .storage
-      .from("product-images")
-      .upload(fileName, imageFile, {
-        cacheControl: '3600',
-        upsert: false
-      });
-      
-    if (uploadError) throw new Error("Error uploading image: " + uploadError.message);
-
-    const { data: publicUrlData } = supabaseAdmin
-      .storage
-      .from("product-images")
-      .getPublicUrl(fileName);
-
-    // Link image to product
-    await supabaseAdmin
+  // Handle multiple Image Uploads
+  const imageFiles = formData.getAll("images") as File[];
+  if (imageFiles && imageFiles.length > 0) {
+    // Check if product already has a primary image
+    const { data: existingImages } = await supabaseAdmin
       .from("product_images")
-      .insert({
-        product_id: newProductId,
-        image_url: publicUrlData.publicUrl,
-        is_primary: true
-      });
+      .select("id")
+      .eq("product_id", newProductId)
+      .eq("is_primary", true);
+      
+    let hasPrimary = existingImages && existingImages.length > 0;
+
+    for (const imageFile of imageFiles) {
+      if (imageFile.size === 0) continue;
+
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${newProductId}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabaseAdmin
+        .storage
+        .from("product-images")
+        .upload(fileName, imageFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+        
+      if (uploadError) throw new Error("Error uploading image: " + uploadError.message);
+
+      const { data: publicUrlData } = supabaseAdmin
+        .storage
+        .from("product-images")
+        .getPublicUrl(fileName);
+
+      // First uploaded image is primary if there was no primary image
+      const isPrimary = !hasPrimary;
+      hasPrimary = true; // after first successful upload, it has a primary
+
+      await supabaseAdmin
+        .from("product_images")
+        .insert({
+          product_id: newProductId,
+          image_url: publicUrlData.publicUrl,
+          is_primary: isPrimary
+        });
+    }
   }
 
   revalidatePath("/", "layout");
@@ -123,5 +139,49 @@ export async function deleteProduct(productId: string) {
 
   if (error) throw new Error(error.message);
   
+  revalidatePath("/", "layout");
+}
+
+export async function deleteProductImage(imageId: string, imageUrl: string) {
+  const isAuthorized = await verifyAdminAccess();
+  if (!isAuthorized) throw new Error("Unauthorized");
+
+  // Extract filename from URL (everything after the last slash)
+  const fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+
+  // 1. Delete from Supabase Storage
+  if (fileName) {
+    await supabaseAdmin.storage.from("product-images").remove([fileName]);
+  }
+
+  // 2. Delete from Database
+  const { error } = await supabaseAdmin
+    .from("product_images")
+    .delete()
+    .eq("id", imageId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/", "layout");
+}
+
+export async function setPrimaryImage(productId: string, imageId: string) {
+  const isAuthorized = await verifyAdminAccess();
+  if (!isAuthorized) throw new Error("Unauthorized");
+
+  // 1. Unset all primary for this product
+  await supabaseAdmin
+    .from("product_images")
+    .update({ is_primary: false })
+    .eq("product_id", productId);
+
+  // 2. Set the selected image as primary
+  const { error } = await supabaseAdmin
+    .from("product_images")
+    .update({ is_primary: true })
+    .eq("id", imageId);
+
+  if (error) throw new Error(error.message);
+
   revalidatePath("/", "layout");
 }

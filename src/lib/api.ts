@@ -107,6 +107,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       *,
       categories(*),
       product_images (
+        id,
         image_url,
         is_primary
       )
@@ -126,6 +127,7 @@ export async function getProductById(id: string): Promise<Product | null> {
 
   return {
     ...data,
-    image_url: primaryImage
+    image_url: primaryImage,
+    images: images
   };
 }

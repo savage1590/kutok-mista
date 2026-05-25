@@ -2,8 +2,9 @@
 
 import { useState } from"react";
 import { Product, Category, ProductType } from"@/lib/types";
-import { saveProduct, deleteProduct } from"./actions";
-import { ArrowLeft, Save, Trash2, Upload } from"lucide-react";
+import { saveProduct, deleteProduct, deleteProductImage, setPrimaryImage } from "./actions";
+import { ArrowLeft, Save, Trash2, Upload, Star } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { Link } from"@/i18n/routing";
 
@@ -20,6 +21,43 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
  const [isDeleting, setIsDeleting] = useState(false);
   const [categoryId, setCategoryId] = useState(initialProduct?.category_id || "");
   const selectedCategory = categories.find(c => c.id === categoryId);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [isDeletingImage, setIsDeletingImage] = useState<string | null>(null);
+  const [isSettingPrimary, setIsSettingPrimary] = useState<string | null>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      const newPreviews = filesArray.map(file => URL.createObjectURL(file));
+      setImagePreviews(prev => [...prev, ...newPreviews]);
+    }
+  };
+
+  const handleDeleteImage = async (imageId: string, imageUrl: string) => {
+    if (!initialProduct?.id || !confirm("Видалити це зображення?")) return;
+    setIsDeletingImage(imageId);
+    try {
+      await deleteProductImage(imageId, imageUrl);
+      toast.success("Зображення видалено");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsDeletingImage(null);
+    }
+  };
+
+  const handleSetPrimary = async (imageId: string) => {
+    if (!initialProduct?.id) return;
+    setIsSettingPrimary(imageId);
+    try {
+      await setPrimaryImage(initialProduct.id, imageId);
+      toast.success("Головне зображення змінено");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsSettingPrimary(null);
+    }
+  };
 
   // Property state
   const [properties, setProperties] = useState<Record<string, string[]>>(initialProduct?.properties || {});
@@ -253,32 +291,85 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
  </div>
  </label>
 
- <div className="space-y-4">
- <h3 className="font-semibold text-foreground">Зображення товару</h3>
- 
- {initialProduct?.image_url && (
- <div className="mb-4">
- <p className="text-sm text-gray-500 mb-2">Поточне головне зображення:</p>
- <img src={initialProduct.image_url} alt="Current"className="w-32 h-32 object-cover rounded-xl border border-gray-200"/>
- </div>
-)}
+  <div className="space-y-4">
+    <h3 className="font-semibold text-foreground">Зображення товару</h3>
+    
+    {initialProduct?.images && initialProduct.images.length > 0 && (
+      <div className="mb-6">
+        <p className="text-sm text-gray-500 mb-3">Збережені зображення:</p>
+        <div className="flex flex-wrap gap-4">
+          {initialProduct.images.map((img) => (
+            <div key={img.id} className="relative group rounded-xl overflow-hidden border border-gray-200">
+              <img src={img.image_url} alt="Product" className="w-32 h-32 object-cover" />
+              
+              {/* Primary badge */}
+              {img.is_primary && (
+                <div className="absolute top-2 left-2 bg-brand text-white text-xs px-2 py-1 rounded-md font-bold flex items-center gap-1 shadow-sm">
+                  <Star className="w-3 h-3 fill-white" /> Головне
+                </div>
+              )}
 
- <div className="flex items-center justify-center w-full">
- <label htmlFor="dropzone-file"className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
- <div className="flex flex-col items-center justify-center pt-5 pb-6">
- <Upload className="w-10 h-10 mb-3 text-gray-400"/>
- <p className="mb-2 text-sm text-gray-500">
- <span className="font-semibold">Натисніть для завантаження</span> або перетягніть
- </p>
- <p className="text-xs text-gray-500">PNG, JPG, WEBP (Макс. 5MB)</p>
- </div>
- <input id="dropzone-file"name="image"type="file"className="hidden"accept="image/png, image/jpeg, image/webp"/>
- </label>
- </div>
- <p className="text-xs text-gray-400 italic">
- Примітка: Завантаження нового зображення встановить його як головне. (Переконайтеся, що ви створили бакет `product-images` в Supabase Storage).
- </p>
- </div>
+              {/* Actions Overlay */}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                {!img.is_primary && (
+                  <button
+                    type="button"
+                    disabled={isSettingPrimary === img.id}
+                    onClick={() => handleSetPrimary(img.id)}
+                    className="bg-white text-gray-900 text-xs px-3 py-1.5 rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50"
+                  >
+                    {isSettingPrimary === img.id ? "..." : "Зробити головним"}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  disabled={isDeletingImage === img.id}
+                  onClick={() => handleDeleteImage(img.id, img.image_url)}
+                  className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium hover:bg-red-600 transition-colors flex items-center gap-1 disabled:opacity-50"
+                >
+                  <Trash2 className="w-3 h-3" /> {isDeletingImage === img.id ? "..." : "Видалити"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {imagePreviews.length > 0 && (
+      <div className="mb-6">
+        <p className="text-sm text-gray-500 mb-3">Нові зображення до завантаження (збережуться після натискання "Зберегти товар"):</p>
+        <div className="flex flex-wrap gap-4">
+          {imagePreviews.map((preview, i) => (
+            <div key={i} className="rounded-xl overflow-hidden border border-brand/50">
+              <img src={preview} alt={`Preview ${i}`} className="w-32 h-32 object-cover" />
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <div className="flex items-center justify-center w-full">
+      <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+          <Upload className="w-10 h-10 mb-3 text-gray-400" />
+          <p className="mb-2 text-sm text-gray-500">
+            <span className="font-semibold">Натисніть для завантаження</span> або перетягніть
+          </p>
+          <p className="text-xs text-gray-500">PNG, JPG, WEBP (Можна обирати кілька файлів)</p>
+        </div>
+        <input 
+          id="dropzone-file" 
+          name="images" 
+          type="file" 
+          multiple
+          className="hidden" 
+          accept="image/png, image/jpeg, image/webp"
+          onChange={handleImageChange}
+        />
+      </label>
+    </div>
+  </div>
 
  <div className="pt-6 border-t border-gray-100">
  <button 

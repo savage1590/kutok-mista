@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getProductById } from "@/lib/api";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import InteractiveProductForm from "@/components/ui/InteractiveProductForm";
+import ProductGallery from "@/components/ui/ProductGallery";
 import { Link } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -59,35 +60,28 @@ export default async function ProductPage({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
           {/* Image Gallery */}
-          <div className="rounded-3xl overflow-hidden bg-gray-50 aspect-[4/5] md:aspect-square relative flex items-center justify-center">
-            {product.image_url ? (
-              <img 
-                src={product.image_url} 
-                alt={name} 
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <span className="text-gray-300">No Image</span>
-            )}
-            
-            {/* Badges Overlay */}
-            <div className="absolute top-6 left-6 flex flex-col gap-2">
-              {product.is_on_demand && (
-                <span className="bg-brand text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg">
-                  {t("productionTime")}
-                </span>
-              )}
-              {productCollections.map(col => (
-                <span 
-                  key={col.id}
-                  className="text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg"
-                  style={{ backgroundColor: col.color || '#888' }}
-                >
-                  {locale === "ua" ? col.name_ua : col.name_en}
-                </span>
-              ))}
-            </div>
-          </div>
+          <ProductGallery 
+            images={product.images || []} 
+            alt={name} 
+            badges={
+              <>
+                {product.is_on_demand && (
+                  <span className="bg-brand text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg">
+                    {t("productionTime")}
+                  </span>
+                )}
+                {productCollections.map(col => (
+                  <span 
+                    key={col.id}
+                    className="text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg"
+                    style={{ backgroundColor: col.color || '#888' }}
+                  >
+                    {locale === "ua" ? col.name_ua : col.name_en}
+                  </span>
+                ))}
+              </>
+            }
+          />
 
           {/* Product Details */}
           <div className="flex flex-col pt-4 md:pt-10">

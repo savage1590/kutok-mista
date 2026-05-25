@@ -30,4 +30,5 @@ export interface Product {
   is_on_demand: boolean;
   properties: Record<string, any>; // sizes, materials, etc.
   image_url?: string;
+  images?: { id: string; image_url: string; is_primary: boolean }[];
 }
