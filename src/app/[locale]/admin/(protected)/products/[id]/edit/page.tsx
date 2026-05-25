@@ -12,7 +12,7 @@ export default async function EditProductPage({
 
  const { data: product, error } = await supabaseAdmin
  .from("products")
- .select("*, product_images(image_url, is_primary)")
+ .select("*, product_images(id, image_url, is_primary)")
  .eq("id", id)
  .single();
 
@@ -28,7 +28,8 @@ export default async function EditProductPage({
  const formattedProduct: Product = {
  ...product,
  type: product.type as"apparel"|"artifact",
- image_url: primaryImage
+ image_url: primaryImage,
+ images: images
  };
 
  const { data: categories } = await supabaseAdmin

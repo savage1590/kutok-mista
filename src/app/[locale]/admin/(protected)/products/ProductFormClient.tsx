@@ -6,6 +6,7 @@ import { Product, Category, ProductType } from "@/lib/types";
 import { saveProduct, deleteProduct, deleteProductImage, setPrimaryImage } from "./actions";
 import { ArrowLeft, Save, Trash2, Upload, Star } from "lucide-react";
 import toast from "react-hot-toast";
+import ImageCropper from "@/components/ui/ImageCropper";
 
 import { Link } from"@/i18n/routing";
 
@@ -27,12 +28,44 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isDeletingImage, setIsDeletingImage] = useState<string | null>(null);
   const [isSettingPrimary, setIsSettingPrimary] = useState<string | null>(null);
+  
+  // Cropper state
+  const [croppedFiles, setCroppedFiles] = useState<File[]>([]);
+  const [fileToCrop, setFileToCrop] = useState<File | null>(null);
+  const [pendingFilesToCrop, setPendingFilesToCrop] = useState<File[]>([]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    if (e.target.files && e.target.files.length > 0) {
       const filesArray = Array.from(e.target.files);
-      const newPreviews = filesArray.map(file => URL.createObjectURL(file));
-      setImagePreviews(prev => [...prev, ...newPreviews]);
+      // Start cropping the first file, keep the rest in queue
+      setFileToCrop(filesArray[0]);
+      setPendingFilesToCrop(filesArray.slice(1));
+    }
+    // Clear the input so the same file can be selected again
+    e.target.value = '';
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    const previewUrl = URL.createObjectURL(croppedFile);
+    setImagePreviews(prev => [...prev, previewUrl]);
+    setCroppedFiles(prev => [...prev, croppedFile]);
+
+    // Process next file in queue if any
+    if (pendingFilesToCrop.length > 0) {
+      setFileToCrop(pendingFilesToCrop[0]);
+      setPendingFilesToCrop(prev => prev.slice(1));
+    } else {
+      setFileToCrop(null);
+    }
+  };
+
+  const handleCropCancel = () => {
+    // Skip current, process next if any
+    if (pendingFilesToCrop.length > 0) {
+      setFileToCrop(pendingFilesToCrop[0]);
+      setPendingFilesToCrop(prev => prev.slice(1));
+    } else {
+      setFileToCrop(null);
     }
   };
 
@@ -135,6 +168,12 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
  <form action={async (formData) => {
  setIsLoading(true);
  try {
+  // Append cropped files to formData instead of the raw input files
+  formData.delete("images"); // Remove raw files if any
+  croppedFiles.forEach(file => {
+    formData.append("images", file);
+  });
+
   const newProductId = await saveProduct(formData, initialProduct?.id);
   if (!initialProduct) {
     window.location.href = `/${locale}/admin/products/${newProductId}/edit`;
@@ -375,7 +414,6 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
         </div>
         <input 
           id="dropzone-file" 
-          name="images" 
           type="file" 
           multiple
           className="hidden" 
@@ -385,6 +423,14 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
       </label>
     </div>
   </div>
+
+  {fileToCrop && (
+    <ImageCropper 
+      imageFile={fileToCrop}
+      onCropComplete={handleCropComplete}
+      onCancel={handleCropCancel}
+    />
+  )}
 
  <div className="pt-6 border-t border-gray-100">
  <button 
