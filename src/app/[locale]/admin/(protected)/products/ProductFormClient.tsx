@@ -13,11 +13,12 @@ import { Link } from"@/i18n/routing";
 interface ProductFormClientProps {
  initialProduct?: Product;
  categories: Category[];
- sizeCharts?: any[];
- collections?: any[];
+  sizeCharts?: any[];
+  collections?: any[];
+  stockStatuses?: any[];
 }
 
-export default function ProductFormClient({ initialProduct, categories, sizeCharts = [], collections = [] }: ProductFormClientProps) {
+export default function ProductFormClient({ initialProduct, categories, sizeCharts = [], collections = [], stockStatuses = [] }: ProductFormClientProps) {
   const params = useParams();
   const locale = params.locale as string || "ua";
   const [type, setType] = useState<ProductType>(initialProduct?.type || "apparel");
@@ -233,11 +234,22 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
  </div>
 
  <div className="space-y-2">
- <label className="text-sm font-semibold text-foreground">Статус наявності</label>
- <select name="stock_status"defaultValue={initialProduct?.stock_status ||"in_stock"} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-brand outline-none">
- <option value="in_stock">В наявності</option>
- <option value="out_of_stock">Немає в наявності</option>
- </select>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Наявність *</label>
+                <select 
+                  name="stock_status" 
+                  defaultValue={initialProduct?.stock_status || (stockStatuses.length > 0 ? stockStatuses[0].id : "in_stock")} 
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-brand outline-none"
+                >
+                  {stockStatuses.map((status: any) => (
+                    <option key={status.id} value={status.id}>{status.name_ua}</option>
+                  ))}
+                  {stockStatuses.length === 0 && (
+                    <>
+                      <option value="in_stock">В наявності</option>
+                      <option value="out_of_stock">Немає в наявності</option>
+                    </>
+                  )}
+                </select>
  </div>
 
   <div className="space-y-2">

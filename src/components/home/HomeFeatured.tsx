@@ -1,16 +1,19 @@
 import { getTranslations } from "next-intl/server";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ui/ProductCard";
+import { DEFAULT_STOCK_STATUSES } from "@/lib/api";
 
 export default async function HomeFeatured({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "Home" });
 
-  // Fetch featured settings
-  const { data: featuredData } = await supabase
-    .from("settings")
-    .select("value")
-    .eq("key", "home_featured")
-    .single();
+  const [{ data: featuredData }, statuses] = await Promise.all([
+    supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "home_featured")
+      .single(),
+    import("@/lib/api").then(m => m.getStockStatuses())
+  ]);
 
   const featuredIds: string[] = featuredData?.value || [];
 
@@ -28,7 +31,8 @@ export default async function HomeFeatured({ locale }: { locale: string }) {
         .map(p => ({
           ...p,
           images: p.product_images || [],
-          image_url: p.product_images?.find((img: any) => img.is_primary)?.image_url || p.product_images?.[0]?.image_url || p.image_url
+          image_url: p.product_images?.find((img: any) => img.is_primary)?.image_url || p.product_images?.[0]?.image_url || p.image_url,
+          status_def: statuses.find(s => s.id === p.stock_status) || DEFAULT_STOCK_STATUSES.find(s => s.id === p.stock_status) || DEFAULT_STOCK_STATUSES[0]
         }))
         .sort((a, b) => featuredIds.indexOf(a.id) - featuredIds.indexOf(b.id));
     }
@@ -44,7 +48,8 @@ export default async function HomeFeatured({ locale }: { locale: string }) {
       products = data.map(p => ({
         ...p,
         images: p.product_images || [],
-        image_url: p.product_images?.find((img: any) => img.is_primary)?.image_url || p.product_images?.[0]?.image_url || p.image_url
+        image_url: p.product_images?.find((img: any) => img.is_primary)?.image_url || p.product_images?.[0]?.image_url || p.image_url,
+        status_def: statuses.find(s => s.id === p.stock_status) || DEFAULT_STOCK_STATUSES.find(s => s.id === p.stock_status) || DEFAULT_STOCK_STATUSES[0]
       }));
     }
   }

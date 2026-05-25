@@ -37,7 +37,7 @@ export default function QuickAddModal({ product, isOpen, onClose, locale }: Quic
   );
 
   const isAddToCartDisabled = 
-    product.stock_status === "out_of_stock" ||
+    product.status_def?.allow_purchase === false ||
     propertyKeys.some(k => !selectedProperties[k]);
 
   const toggleProperty = (key: string, val: string) => {

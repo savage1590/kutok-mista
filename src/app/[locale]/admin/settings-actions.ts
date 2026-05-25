@@ -86,3 +86,17 @@ export async function saveCollections(collections: unknown[]) {
   if (error) return { error: error.message };
   return { success: true };
 }
+
+export async function saveStockStatuses(statuses: unknown[]) {
+  const isAuthorized = await verifyAdminAccess();
+  if (!isAuthorized) {
+    return { error: "Unauthorized" };
+  }
+
+  const { error } = await supabaseAdmin
+    .from("settings")
+    .upsert({ key: "stock_statuses", value: statuses });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}

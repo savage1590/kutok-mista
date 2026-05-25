@@ -8,7 +8,7 @@ import { useState } from "react";
 import QuickAddModal from "./QuickAddModal";
 import { useCartStore } from "@/lib/store";
 import toast from "react-hot-toast";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductCardProps {
@@ -104,15 +104,15 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
         )}
         
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {product.is_on_demand && (
-            <span className="bg-brand text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-              {t("productionTime")}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 z-30">
+          {product.status_def && !product.status_def.allow_purchase && (
+            <span className={`px-2.5 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm ${product.status_def.color}`}>
+              {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
             </span>
           )}
-          {product.stock_status === "out_of_stock" && (
-            <span className="bg-gray-900 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-              {t("outOfStock")}
+          {product.status_def && product.status_def.allow_purchase && product.status_def.id !== 'in_stock' && (
+            <span className={`px-2.5 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm ${product.status_def.color}`}>
+              {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
             </span>
           )}
           {productCollections.map(col => (
@@ -147,11 +147,12 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
             {product.price} ₴
           </span>
           <button 
-            disabled={product.stock_status === "out_of_stock"}
             onClick={handleAddToCartClick}
-            className="bg-gray-100 hover:bg-brand hover:text-white text-foreground px-4 py-2 rounded-full text-sm font-semibold transition-colors disabled:opacity-50 disabled:hover:bg-gray-100 disabled:hover:text-foreground"
+            disabled={product.status_def?.allow_purchase === false}
+            className="w-10 h-10 rounded-full bg-brand text-white flex items-center justify-center hover:bg-brand/90 transition-all hover:scale-110 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:scale-100"
+            aria-label={locale === "ua" ? "Додати в кошик" : "Add to cart"}
           >
-            {t("addToCart")}
+            <ShoppingBag className="w-5 h-5" />
           </button>
         </div>
       </div>

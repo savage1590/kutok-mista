@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { Product } from "./types";
+import { Product, StockStatusDef } from "./types";
 import { MOCK_PRODUCTS } from "./mockData";
 
 export interface ProductFilters {
@@ -22,6 +22,24 @@ export async function getCategories() {
     return [];
   }
   return data;
+}
+
+export const DEFAULT_STOCK_STATUSES: StockStatusDef[] = [
+  { id: 'in_stock', name_ua: 'В наявності', name_en: 'In Stock', color: 'bg-green-100 text-green-800', allow_purchase: true },
+  { id: 'out_of_stock', name_ua: 'Немає в наявності', name_en: 'Out of Stock', color: 'bg-red-100 text-red-800', allow_purchase: false }
+];
+
+export async function getStockStatuses(): Promise<StockStatusDef[]> {
+  const { data, error } = await supabase
+    .from('settings')
+    .select('value')
+    .eq('key', 'stock_statuses')
+    .single();
+
+  if (error || !data?.value) {
+    return DEFAULT_STOCK_STATUSES;
+  }
+  return data.value as StockStatusDef[];
 }
 
 export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
@@ -53,8 +71,16 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
     query = query.lte('price', filters.max_price);
   }
 
+  // We need to fetch statuses earlier if we are filtering by in_stock
+  const statuses = await getStockStatuses();
+
   if (filters?.in_stock) {
-    query = query.eq('stock_status', 'in_stock');
+    const inStockIds = statuses.filter(s => s.allow_purchase).map(s => s.id);
+    if (inStockIds.length > 0) {
+      query = query.in('stock_status', inStockIds);
+    } else {
+      query = query.eq('stock_status', 'in_stock');
+    }
   }
 
   if (filters?.sort === 'price_asc') {
@@ -82,10 +108,15 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
       || images?.[0]?.image_url 
       || undefined;
 
+    const statusDef = statuses.find(s => s.id === item.stock_status) 
+      || DEFAULT_STOCK_STATUSES.find(s => s.id === item.stock_status)
+      || DEFAULT_STOCK_STATUSES[0];
+
     return {
       ...item,
       image_url: primaryImage,
-      images: images || []
+      images: images || [],
+      status_def: statusDef
     };
   });
 
@@ -121,14 +152,21 @@ export async function getProductById(id: string): Promise<Product | null> {
     return MOCK_PRODUCTS.find(p => p.id === id) || null;
   }
 
+  const statuses = await getStockStatuses();
+
   const images = data.product_images as any[];
   const primaryImage = images?.find(img => img.is_primary)?.image_url 
     || images?.[0]?.image_url 
     || undefined;
 
+  const statusDef = statuses.find(s => s.id === data.stock_status)
+    || DEFAULT_STOCK_STATUSES.find(s => s.id === data.stock_status)
+    || DEFAULT_STOCK_STATUSES[0];
+
   return {
     ...data,
     image_url: primaryImage,
-    images: images
+    images: images,
+    status_def: statusDef
   };
 }

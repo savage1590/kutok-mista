@@ -16,6 +16,14 @@ export interface Category {
   properties_schema?: PropertyOption[];
 }
 
+export interface StockStatusDef {
+  id: string;
+  name_ua: string;
+  name_en: string;
+  color: string; // e.g. "bg-green-100 text-green-800"
+  allow_purchase: boolean;
+}
+
 export interface Product {
   id: string;
   type: ProductType;
@@ -26,7 +34,8 @@ export interface Product {
   description_ua: string;
   description_en: string;
   price: number;
-  stock_status: 'in_stock' | 'out_of_stock';
+  stock_status: string;
+  status_def?: StockStatusDef;
   is_on_demand: boolean;
   properties: Record<string, any>; // sizes, materials, etc.
   image_url?: string;
