@@ -105,14 +105,7 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
         
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2 z-30">
-          {product.status_def && product.status_def.show_in_card !== false && (
-            <span 
-              className="px-2.5 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm text-white"
-              style={{ backgroundColor: product.status_def.color || (product.status_def.allow_purchase ? '#10B981' : '#EF4444') }}
-            >
-              {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
-            </span>
-          )}
+
           {productCollections.map(col => (
             <span 
               key={col.id}
@@ -136,9 +129,20 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
             {name}
           </h3>
         </Link>
-        <p className="text-gray-500 text-sm mb-4 capitalize">
+        <p className="text-gray-500 text-sm mb-3 capitalize">
           {categoryName}
         </p>
+
+        {product.status_def && product.status_def.show_in_card !== false && (
+          <div className="mb-4">
+            <span 
+              className="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-sm text-white"
+              style={{ backgroundColor: product.status_def.color || (product.status_def.allow_purchase ? '#10B981' : '#EF4444') }}
+            >
+              {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
+            </span>
+          </div>
+        )}
         
         <div className="mt-auto flex items-center justify-between">
           <span className="font-bold text-lg">
