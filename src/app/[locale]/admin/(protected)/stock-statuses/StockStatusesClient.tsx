@@ -13,7 +13,7 @@ const PRESET_COLORS = [
 export default function StockStatusesClient({ initialStatuses }: { initialStatuses: StockStatusDef[] }) {
   const [statuses, setStatuses] = useState<StockStatusDef[]>(initialStatuses || []);
   const [isSaving, setIsSaving] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -36,24 +36,26 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
       show_in_card: true,
     };
     setStatuses([...statuses, newStatus]);
-    setEditingId(newStatus.id);
+    setEditingIndex(statuses.length);
   };
 
-  const deleteStatus = (id: string) => {
+  const deleteStatus = (index: number) => {
     if (confirm("Видалити цей статус? Товари з цим статусом можуть відображатись некоректно, якщо їх не оновити.")) {
-      setStatuses(statuses.filter(s => s.id !== id));
-      if (editingId === id) setEditingId(null);
+      const newStatuses = [...statuses];
+      newStatuses.splice(index, 1);
+      setStatuses(newStatuses);
+      if (editingIndex === index) setEditingIndex(null);
+      else if (editingIndex !== null && editingIndex > index) setEditingIndex(editingIndex - 1);
     }
   };
 
-  const updateField = (id: string, field: keyof StockStatusDef, value: any) => {
-    setStatuses(statuses.map(s => s.id === id ? { ...s, [field]: value } : s));
-    if (field === "id" && editingId === id) {
-      setEditingId(value);
-    }
+  const updateField = (index: number, field: keyof StockStatusDef, value: any) => {
+    const newStatuses = [...statuses];
+    newStatuses[index] = { ...newStatuses[index], [field]: value };
+    setStatuses(newStatuses);
   };
 
-  const editing = statuses.find(s => s.id === editingId);
+  const editing = editingIndex !== null ? statuses[editingIndex] : undefined;
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl">
@@ -78,12 +80,12 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* List of statuses */}
         <div className="md:col-span-1 flex flex-col gap-2">
-          {statuses.map(status => (
+          {statuses.map((status, index) => (
             <div
               key={status.id}
-              onClick={() => setEditingId(status.id)}
+              onClick={() => setEditingIndex(index)}
               className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col gap-2 group ${
-                editingId === status.id ? "border-brand bg-brand/5 shadow-sm" : "border-gray-200 bg-white hover:border-gray-300"
+                editingIndex === index ? "border-brand bg-brand/5 shadow-sm" : "border-gray-200 bg-white hover:border-gray-300"
               }`}
             >
               <div className="flex justify-between items-center">
@@ -91,7 +93,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                   {status.name_ua}
                 </span>
                 <button
-                  onClick={(e) => { e.stopPropagation(); deleteStatus(status.id); }}
+                  onClick={(e) => { e.stopPropagation(); deleteStatus(index); }}
                   className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -125,7 +127,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                   <input
                     type="text"
                     value={editing.name_ua}
-                    onChange={(e) => updateField(editing.id, "name_ua", e.target.value)}
+                    onChange={(e) => updateField(editingIndex!, "name_ua", e.target.value)}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                   />
                 </div>
@@ -134,7 +136,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                   <input
                     type="text"
                     value={editing.name_en}
-                    onChange={(e) => updateField(editing.id, "name_en", e.target.value)}
+                    onChange={(e) => updateField(editingIndex!, "name_en", e.target.value)}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                   />
                 </div>
@@ -145,7 +147,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                 <input
                   type="text"
                   value={editing.id}
-                  onChange={(e) => updateField(editing.id, "id", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                  onChange={(e) => updateField(editingIndex!, "id", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                   disabled={editing.id === "in_stock" || editing.id === "out_of_stock"}
                   className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand font-mono text-sm disabled:bg-gray-100 disabled:text-gray-500"
                 />
@@ -172,7 +174,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                   <input
                     type="checkbox"
                     checked={editing.show_in_card !== false} // default to true
-                    onChange={(e) => updateField(editing.id, "show_in_card", e.target.checked)}
+                    onChange={(e) => updateField(editingIndex!, "show_in_card", e.target.checked)}
                     className="w-5 h-5 text-brand rounded border-gray-300 focus:ring-brand"
                   />
                   <div>
@@ -191,7 +193,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                   {PRESET_COLORS.map(color => (
                     <button
                       key={color}
-                      onClick={() => updateField(editing.id, "color", color)}
+                      onClick={() => updateField(editingIndex!, "color", color)}
                       className={`w-9 h-9 rounded-lg transition-all hover:scale-110 ${
                         editing.color === color ? "ring-2 ring-offset-2 ring-brand scale-110" : ""
                       }`}
@@ -204,7 +206,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                   <input
                     type="color"
                     value={editing.color || "#000000"}
-                    onChange={(e) => updateField(editing.id, "color", e.target.value)}
+                    onChange={(e) => updateField(editingIndex!, "color", e.target.value)}
                     className="w-8 h-8 border-0 rounded cursor-pointer"
                   />
                   <span className="text-xs text-gray-500 font-mono">{editing.color}</span>
