@@ -159,7 +159,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                   <input
                     type="checkbox"
                     checked={editing.allow_purchase}
-                    onChange={(e) => updateField(editing.id, "allow_purchase", e.target.checked)}
+                    onChange={(e) => updateField(editingIndex!, "allow_purchase", e.target.checked)}
                     className="w-5 h-5 text-brand rounded border-gray-300 focus:ring-brand"
                   />
                   <div>
