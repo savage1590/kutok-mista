@@ -25,8 +25,8 @@ export async function getCategories() {
 }
 
 export const DEFAULT_STOCK_STATUSES: StockStatusDef[] = [
-  { id: 'in_stock', name_ua: 'В наявності', name_en: 'In Stock', color: 'bg-green-100 text-green-800', allow_purchase: true },
-  { id: 'out_of_stock', name_ua: 'Немає в наявності', name_en: 'Out of Stock', color: 'bg-red-100 text-red-800', allow_purchase: false }
+  { id: 'in_stock', name_ua: 'В наявності', name_en: 'In Stock', color: '#10B981', allow_purchase: true, show_in_card: true },
+  { id: 'out_of_stock', name_ua: 'Немає в наявності', name_en: 'Out of Stock', color: '#EF4444', allow_purchase: false, show_in_card: true }
 ];
 
 export async function getStockStatuses(): Promise<StockStatusDef[]> {

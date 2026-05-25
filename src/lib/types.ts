@@ -20,8 +20,9 @@ export interface StockStatusDef {
   id: string;
   name_ua: string;
   name_en: string;
-  color: string; // e.g. "bg-green-100 text-green-800"
+  color: string; // HEX color, e.g. "#10B981"
   allow_purchase: boolean;
+  show_in_card: boolean;
 }
 
 export interface Product {

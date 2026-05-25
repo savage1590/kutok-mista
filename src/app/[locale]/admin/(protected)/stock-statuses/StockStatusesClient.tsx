@@ -6,14 +6,8 @@ import { saveStockStatuses } from "@/app/[locale]/admin/settings-actions";
 import { StockStatusDef } from "@/lib/types";
 
 const PRESET_COLORS = [
-  "bg-green-100 text-green-800",
-  "bg-red-100 text-red-800",
-  "bg-yellow-100 text-yellow-800",
-  "bg-blue-100 text-blue-800",
-  "bg-purple-100 text-purple-800",
-  "bg-gray-100 text-gray-800",
-  "bg-orange-100 text-orange-800",
-  "bg-teal-100 text-teal-800",
+  "#E53E3E", "#DD6B20", "#D69E2E", "#38A169", "#319795",
+  "#3182CE", "#5A67D8", "#805AD5", "#D53F8C", "#1A202C",
 ];
 
 export default function StockStatusesClient({ initialStatuses }: { initialStatuses: StockStatusDef[] }) {
@@ -39,6 +33,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
       name_en: "New Status",
       color: PRESET_COLORS[statuses.length % PRESET_COLORS.length],
       allow_purchase: true,
+      show_in_card: true,
     };
     setStatuses([...statuses, newStatus]);
     setEditingId(newStatus.id);
@@ -53,6 +48,9 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
 
   const updateField = (id: string, field: keyof StockStatusDef, value: any) => {
     setStatuses(statuses.map(s => s.id === id ? { ...s, [field]: value } : s));
+    if (field === "id" && editingId === id) {
+      setEditingId(value);
+    }
   };
 
   const editing = statuses.find(s => s.id === editingId);
@@ -89,7 +87,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
               }`}
             >
               <div className="flex justify-between items-center">
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${status.color}`}>
+                <span className="px-2 py-1 text-xs font-semibold rounded-full text-white" style={{ backgroundColor: status.color }}>
                   {status.name_ua}
                 </span>
                 <button
@@ -100,7 +98,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                 </button>
               </div>
               <div className="text-xs text-gray-500">
-                Кошик: {status.allow_purchase ? "Дозволено" : "Заборонено"}
+                Кошик: {status.allow_purchase ? "Дозволено" : "Заборонено"} | В картці: {status.show_in_card !== false ? "Так" : "Ні"}
               </div>
             </div>
           ))}
@@ -116,7 +114,7 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
           {editing ? (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
               <div className="flex items-center gap-4 mb-2">
-                <span className={`px-3 py-1 text-sm font-semibold rounded-full ${editing.color}`}>
+                <span className="px-3 py-1 text-sm font-semibold rounded-full text-white" style={{ backgroundColor: editing.color }}>
                   {editing.name_ua}
                 </span>
               </div>
@@ -169,33 +167,47 @@ export default function StockStatusesClient({ initialStatuses }: { initialStatus
                 </label>
               </div>
 
+              <div className="space-y-2 pt-2">
+                <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={editing.show_in_card !== false} // default to true
+                    onChange={(e) => updateField(editing.id, "show_in_card", e.target.checked)}
+                    className="w-5 h-5 text-brand rounded border-gray-300 focus:ring-brand"
+                  />
+                  <div>
+                    <div className="font-semibold text-gray-800">Відображати бейдж в картці товару</div>
+                    <div className="text-sm text-gray-500">Якщо вимкнено, цей статус не буде показувати кольорову плашку на фото товару в каталозі.</div>
+                  </div>
+                </label>
+              </div>
+
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                   <Palette className="w-4 h-4" />
-                  Колір (Tailwind класи)
+                  Колір плашки
                 </label>
                 <div className="flex flex-wrap gap-3">
                   {PRESET_COLORS.map(color => (
                     <button
                       key={color}
                       onClick={() => updateField(editing.id, "color", color)}
-                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-all hover:scale-105 ${color} ${
-                        editing.color === color ? "ring-2 ring-offset-2 ring-brand scale-105" : ""
+                      className={`w-9 h-9 rounded-lg transition-all hover:scale-110 ${
+                        editing.color === color ? "ring-2 ring-offset-2 ring-brand scale-110" : ""
                       }`}
-                    >
-                      Приклад
-                    </button>
+                      style={{ backgroundColor: color }}
+                    />
                   ))}
                 </div>
-                <div className="flex flex-col gap-2 mt-2">
-                  <span className="text-xs text-gray-400">Або введіть власні класи Tailwind:</span>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-xs text-gray-400">Або введіть свій:</span>
                   <input
-                    type="text"
-                    value={editing.color}
+                    type="color"
+                    value={editing.color || "#000000"}
                     onChange={(e) => updateField(editing.id, "color", e.target.value)}
-                    placeholder="bg-indigo-100 text-indigo-800"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand font-mono text-sm"
+                    className="w-8 h-8 border-0 rounded cursor-pointer"
                   />
+                  <span className="text-xs text-gray-500 font-mono">{editing.color}</span>
                 </div>
               </div>
             </div>
