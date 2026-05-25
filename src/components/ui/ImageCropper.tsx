@@ -24,13 +24,13 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
   }, [imageFile]);
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
-    const { width, height } = e.currentTarget;
-    const initialCrop = centerCrop(
-      makeAspectCrop({ unit: '%', width: 90 }, 1, width, height),
-      width,
-      height
-    );
-    setCrop(initialCrop);
+    setCrop({
+      unit: '%',
+      x: 10,
+      y: 10,
+      width: 80,
+      height: 80
+    });
   }
 
   const handleSave = async () => {
@@ -88,7 +88,7 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
                 alt="Crop me"
                 src={imgSrc}
                 onLoad={onImageLoad}
-                className="max-h-[60vh] w-auto object-contain"
+                style={{ maxHeight: '60vh', width: 'auto', display: 'block' }}
               />
             </ReactCrop>
           )}
