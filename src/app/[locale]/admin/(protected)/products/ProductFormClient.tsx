@@ -180,11 +180,11 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
   } else {
     window.location.reload();
   }
- } catch (error) {
+ } catch (error: any) {
   if (typeof error === 'object' && error !== null && 'digest' in error && typeof (error as any).digest === 'string' && (error as any).digest.startsWith('NEXT_REDIRECT')) {
     throw error;
   }
-  alert("Помилка збереження. Перевірте консоль.");
+  alert(`Помилка збереження: ${error?.message || "Перевірте консоль"}`);
   console.error(error);
   setIsLoading(false);
  }
