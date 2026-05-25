@@ -8,6 +8,7 @@ import { useState } from "react";
 import QuickAddModal from "./QuickAddModal";
 import { useCartStore } from "@/lib/store";
 import toast from "react-hot-toast";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -25,6 +26,7 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
   const productCollections = collections.filter(c => productCollectionIds.includes(c.id));
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const addItem = useCartStore((state) => state.addItem);
   
   const hasProperties = Object.keys(product.properties || {}).some(k => 
@@ -45,13 +47,28 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
     }
   };
   
+  const sortedImages = product.images ? [...product.images].sort((a: any, b: any) => (a.is_primary ? -1 : b.is_primary ? 1 : 0)) : [];
+  const displayImage = sortedImages.length > 0 ? sortedImages[currentImageIndex].image_url : product.image_url;
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : sortedImages.length - 1));
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev < sortedImages.length - 1 ? prev + 1 : 0));
+  };
+  
   return (
     <div className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
       {/* Image Area */}
       <Link href={`/products/${product.id}`} className="relative aspect-[4/5] bg-gray-50 overflow-hidden block">
-        {product.image_url ? (
+        {displayImage ? (
           <img 
-            src={product.image_url} 
+            src={displayImage} 
             alt={name} 
             className={`${product.properties?.image_fit === 'contain' ? 'object-contain p-4' : 'object-cover'} w-full h-full group-hover:scale-105 transition-transform duration-500`}
           />
@@ -59,6 +76,23 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
           <div className="w-full h-full flex items-center justify-center text-gray-300">
             No Image
           </div>
+        )}
+
+        {sortedImages.length > 1 && (
+          <>
+            <button 
+              onClick={handlePrevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-sm z-20"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={handleNextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-sm z-20"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </>
         )}
         
         {/* Badges */}

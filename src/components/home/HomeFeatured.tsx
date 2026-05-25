@@ -19,22 +19,34 @@ export default async function HomeFeatured({ locale }: { locale: string }) {
   if (featuredIds.length > 0) {
     const { data } = await supabase
       .from("products")
-      .select("*")
+      .select("*, product_images(image_url, is_primary)")
       .in("id", featuredIds);
       
     // Sort them exactly as ordered in the settings array
     if (data) {
-      products = [...data].sort((a, b) => featuredIds.indexOf(a.id) - featuredIds.indexOf(b.id));
+      products = [...data]
+        .map(p => ({
+          ...p,
+          images: p.product_images || [],
+          image_url: p.product_images?.find((img: any) => img.is_primary)?.image_url || p.product_images?.[0]?.image_url || p.image_url
+        }))
+        .sort((a, b) => featuredIds.indexOf(a.id) - featuredIds.indexOf(b.id));
     }
   } else {
     // Fallback: Fetch 4 latest products if none selected
     const { data } = await supabase
       .from("products")
-      .select("*")
+      .select("*, product_images(image_url, is_primary)")
       .order("created_at", { ascending: false })
       .limit(4);
       
-    if (data) products = data;
+    if (data) {
+      products = data.map(p => ({
+        ...p,
+        images: p.product_images || [],
+        image_url: p.product_images?.find((img: any) => img.is_primary)?.image_url || p.product_images?.[0]?.image_url || p.image_url
+      }));
+    }
   }
 
   if (!products || products.length === 0) return null;

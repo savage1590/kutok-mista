@@ -84,7 +84,8 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
 
     return {
       ...item,
-      image_url: primaryImage
+      image_url: primaryImage,
+      images: images || []
     };
   });
 
