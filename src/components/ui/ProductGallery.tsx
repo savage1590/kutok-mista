@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductGalleryProps {
   images: { id: string; image_url: string; is_primary: boolean }[];
@@ -61,11 +62,18 @@ export default function ProductGallery({ images, alt, badges, imageFit = "cover"
         className={`group rounded-3xl overflow-hidden bg-gray-50 aspect-[4/5] md:aspect-square relative flex items-center justify-center cursor-zoom-in ${imageFit === 'contain' ? 'p-4' : ''}`}
         onClick={() => setIsLightboxOpen(true)}
       >
-        <img 
-          src={activeImage?.image_url} 
-          alt={alt} 
-          className={`${fitClass} w-full h-full transition-opacity duration-300`}
-        />
+        <AnimatePresence mode="wait">
+          <motion.img 
+            key={activeImage?.image_url || "fallback"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            src={activeImage?.image_url} 
+            alt={alt} 
+            className={`${fitClass} w-full h-full`}
+          />
+        </AnimatePresence>
         
         {/* Badges Overlay */}
         <div className="absolute top-6 left-6 flex flex-col gap-2 z-10">
@@ -149,12 +157,19 @@ export default function ProductGallery({ images, alt, badges, imageFit = "cover"
         )}
 
         <div className="w-full h-full p-4 md:p-12 flex items-center justify-center max-w-7xl mx-auto">
-          <img 
-            src={activeImage?.image_url} 
-            alt={alt} 
-            className="max-w-full max-h-full object-contain select-none"
-            onClick={(e) => e.stopPropagation()} // Prevent clicking image from closing
-          />
+          <AnimatePresence mode="wait">
+            <motion.img 
+              key={activeImage?.image_url || "fallback-lb"}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              src={activeImage?.image_url} 
+              alt={alt} 
+              className="max-w-full max-h-full object-contain select-none"
+              onClick={(e: any) => e.stopPropagation()} // Prevent clicking image from closing
+            />
+          </AnimatePresence>
         </div>
         
         {/* Thumbnails in lightbox */}

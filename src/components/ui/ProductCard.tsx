@@ -9,6 +9,7 @@ import QuickAddModal from "./QuickAddModal";
 import { useCartStore } from "@/lib/store";
 import toast from "react-hot-toast";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductCardProps {
   product: Product;
@@ -67,11 +68,18 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
       {/* Image Area */}
       <Link href={`/products/${product.id}`} className="relative aspect-[4/5] bg-gray-50 overflow-hidden block">
         {displayImage ? (
-          <img 
-            src={displayImage} 
-            alt={name} 
-            className={`${product.properties?.image_fit === 'contain' ? 'object-contain p-4' : 'object-cover'} w-full h-full group-hover:scale-105 transition-transform duration-500`}
-          />
+          <AnimatePresence mode="wait">
+            <motion.img 
+              key={displayImage}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              src={displayImage} 
+              alt={name} 
+              className={`${product.properties?.image_fit === 'contain' ? 'object-contain p-4' : 'object-cover'} w-full h-full group-hover:scale-105 transition-transform duration-500`}
+            />
+          </AnimatePresence>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">
             No Image
