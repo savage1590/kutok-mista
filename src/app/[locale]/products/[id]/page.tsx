@@ -80,6 +80,14 @@ export default async function ProductPage({
                     {locale === "ua" ? col.name_ua : col.name_en}
                   </span>
                 ))}
+                {product.status_def && product.status_def.show_in_card !== false && (
+                  <span 
+                    className="text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg"
+                    style={{ backgroundColor: product.status_def.color || (product.status_def.allow_purchase ? '#10B981' : '#EF4444') }}
+                  >
+                    {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
+                  </span>
+                )}
               </>
             }
           />
@@ -89,9 +97,20 @@ export default async function ProductPage({
             <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight tracking-tight mb-2">
               {name}
             </h1>
-            <p className="text-brand font-semibold text-2xl mb-6">
-              {product.price} ₴
-            </p>
+            
+            <div className="flex items-center gap-4 mb-6">
+              <p className="text-brand font-semibold text-2xl">
+                {product.price} ₴
+              </p>
+              {product.status_def && (
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: product.status_def.color || (product.status_def.allow_purchase ? '#10B981' : '#EF4444') }}></span>
+                  <span className="text-sm font-medium text-gray-600">
+                    {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
+                  </span>
+                </div>
+              )}
+            </div>
             
             <p className="text-lg text-gray-600 leading-relaxed mb-8">
               {description}

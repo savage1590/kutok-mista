@@ -105,18 +105,10 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
         
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2 z-30">
-          {product.status_def && product.status_def.show_in_card !== false && !product.status_def.allow_purchase && (
+          {product.status_def && product.status_def.show_in_card !== false && (
             <span 
               className="px-2.5 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm text-white"
-              style={{ backgroundColor: product.status_def.color || '#EF4444' }}
-            >
-              {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
-            </span>
-          )}
-          {product.status_def && product.status_def.show_in_card !== false && product.status_def.allow_purchase && product.status_def.id !== 'in_stock' && (
-            <span 
-              className="px-2.5 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm text-white"
-              style={{ backgroundColor: product.status_def.color || '#10B981' }}
+              style={{ backgroundColor: product.status_def.color || (product.status_def.allow_purchase ? '#10B981' : '#EF4444') }}
             >
               {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
             </span>
