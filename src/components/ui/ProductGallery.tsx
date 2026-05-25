@@ -80,11 +80,9 @@ export default function ProductGallery({ images, alt, badges, imageFit = "cover"
           {badges}
         </div>
 
-        {/* Hover zoom icon indicator */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center z-10 pointer-events-none">
-          <div className="bg-white/90 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-4 group-hover:translate-y-0 shadow-sm">
-            <ZoomIn className="w-6 h-6 text-gray-800" />
-          </div>
+        {/* Subtle corner zoom indicator */}
+        <div className="absolute bottom-4 right-4 bg-white/50 backdrop-blur-md p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+          <ZoomIn className="w-5 h-5 text-gray-700" />
         </div>
 
         {/* Arrows */}
