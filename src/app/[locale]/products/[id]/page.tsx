@@ -63,6 +63,7 @@ export default async function ProductPage({
           <ProductGallery 
             images={product.images || []} 
             alt={name} 
+            imageFit={product.properties?.image_fit || "cover"}
             badges={
               <>
                 {product.is_on_demand && (

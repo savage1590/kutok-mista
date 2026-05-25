@@ -53,7 +53,7 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
           <img 
             src={product.image_url} 
             alt={name} 
-            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+            className={`${product.properties?.image_fit === 'contain' ? 'object-contain p-4' : 'object-cover'} w-full h-full group-hover:scale-105 transition-transform duration-500`}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">

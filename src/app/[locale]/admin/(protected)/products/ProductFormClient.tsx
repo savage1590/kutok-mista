@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from"react";
-import { Product, Category, ProductType } from"@/lib/types";
+import { useState } from "react";
+import { useParams } from "next/navigation";
+import { Product, Category, ProductType } from "@/lib/types";
 import { saveProduct, deleteProduct, deleteProductImage, setPrimaryImage } from "./actions";
 import { ArrowLeft, Save, Trash2, Upload, Star } from "lucide-react";
 import toast from "react-hot-toast";
@@ -16,7 +17,9 @@ interface ProductFormClientProps {
 }
 
 export default function ProductFormClient({ initialProduct, categories, sizeCharts = [], collections = [] }: ProductFormClientProps) {
-  const [type, setType] = useState<ProductType>(initialProduct?.type ||"apparel");
+  const params = useParams();
+  const locale = params.locale as string || "ua";
+  const [type, setType] = useState<ProductType>(initialProduct?.type || "apparel");
  const [isLoading, setIsLoading] = useState(false);
  const [isDeleting, setIsDeleting] = useState(false);
   const [categoryId, setCategoryId] = useState(initialProduct?.category_id || "");
@@ -132,14 +135,19 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
  <form action={async (formData) => {
  setIsLoading(true);
  try {
- await saveProduct(formData, initialProduct?.id);
+  const newProductId = await saveProduct(formData, initialProduct?.id);
+  if (!initialProduct) {
+    window.location.href = `/${locale}/admin/products/${newProductId}/edit`;
+  } else {
+    window.location.reload();
+  }
  } catch (error) {
   if (typeof error === 'object' && error !== null && 'digest' in error && typeof (error as any).digest === 'string' && (error as any).digest.startsWith('NEXT_REDIRECT')) {
     throw error;
   }
   alert("Помилка збереження. Перевірте консоль.");
- console.error(error);
- setIsLoading(false);
+  console.error(error);
+  setIsLoading(false);
  }
  }} className="space-y-8">
  
@@ -200,6 +208,13 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
     {sizeCharts.map(sc => (
       <option key={sc.id} value={sc.id}>{sc.name}</option>
     ))}
+  </select>
+  </div>
+  <div className="space-y-2">
+  <label className="text-sm font-semibold text-foreground">Відображення фотографій</label>
+  <select name="image_fit"defaultValue={initialProduct?.properties?.image_fit ||"cover"} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-brand outline-none">
+  <option value="cover">Заповнювати (Обріже краї)</option>
+  <option value="contain">Вміщувати (Без обрізання, можливі поля)</option>
   </select>
   </div>
  </div>

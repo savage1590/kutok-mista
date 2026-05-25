@@ -6,9 +6,10 @@ interface ProductGalleryProps {
   images: { id: string; image_url: string; is_primary: boolean }[];
   alt: string;
   badges?: React.ReactNode;
+  imageFit?: "cover" | "contain";
 }
 
-export default function ProductGallery({ images, alt, badges }: ProductGalleryProps) {
+export default function ProductGallery({ images, alt, badges, imageFit = "cover" }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   // If no images at all
@@ -26,15 +27,16 @@ export default function ProductGallery({ images, alt, badges }: ProductGalleryPr
   // Sort images: primary first
   const sortedImages = [...images].sort((a, b) => (a.is_primary ? -1 : b.is_primary ? 1 : 0));
   const activeImage = sortedImages[activeIndex];
+  const fitClass = imageFit === "contain" ? "object-contain" : "object-cover";
 
   return (
     <div className="flex flex-col gap-4">
       {/* Main Image */}
-      <div className="rounded-3xl overflow-hidden bg-gray-50 aspect-[4/5] md:aspect-square relative flex items-center justify-center">
+      <div className={`rounded-3xl overflow-hidden bg-gray-50 aspect-[4/5] md:aspect-square relative flex items-center justify-center ${imageFit === 'contain' ? 'p-4' : ''}`}>
         <img 
           src={activeImage?.image_url} 
           alt={alt} 
-          className="object-cover w-full h-full transition-opacity duration-300"
+          className={`${fitClass} w-full h-full transition-opacity duration-300`}
         />
         
         {/* Badges Overlay */}
@@ -50,14 +52,14 @@ export default function ProductGallery({ images, alt, badges }: ProductGalleryPr
             <button
               key={img.id}
               onClick={() => setActiveIndex(idx)}
-              className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+              className={`relative flex-shrink-0 w-20 h-20 bg-gray-50 rounded-xl overflow-hidden border-2 transition-all ${
                 activeIndex === idx ? "border-brand" : "border-transparent hover:border-gray-300"
               }`}
             >
               <img 
                 src={img.image_url} 
                 alt={`${alt} thumbnail ${idx + 1}`} 
-                className="object-cover w-full h-full"
+                className={`${fitClass} w-full h-full`}
               />
             </button>
           ))}

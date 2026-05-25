@@ -53,6 +53,12 @@ export async function saveProduct(formData: FormData, productId?: string) {
     properties.collection_ids = collectionIds;
   }
   
+  // Save image fit preference
+  const imageFit = formData.get("image_fit") as string;
+  if (imageFit) {
+    properties.image_fit = imageFit;
+  }
+  
   productData.properties = properties;
 
   let newProductId = productId;
@@ -125,7 +131,7 @@ export async function saveProduct(formData: FormData, productId?: string) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/ua/admin");
+  return newProductId;
 }
 
 export async function deleteProduct(productId: string) {
