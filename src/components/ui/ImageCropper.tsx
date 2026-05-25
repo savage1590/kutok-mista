@@ -59,11 +59,13 @@ export default function ImageCropper({ imageFile, onCropComplete, onCancel }: Im
       canvas.height
     );
 
+    const fileType = imageFile.type || 'image/jpeg';
+    
     canvas.toBlob((blob) => {
       if (!blob) return;
-      const croppedFile = new File([blob], imageFile.name, { type: 'image/jpeg' });
+      const croppedFile = new File([blob], imageFile.name, { type: fileType });
       onCropComplete(croppedFile);
-    }, 'image/jpeg', 0.95);
+    }, fileType, 0.90);
   };
 
   return (
