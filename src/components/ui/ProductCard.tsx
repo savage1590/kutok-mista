@@ -134,11 +134,9 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
         </p>
 
         {product.status_def && product.status_def.show_in_card !== false && (
-          <div className="mb-4">
-            <span 
-              className="inline-block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-sm text-white"
-              style={{ backgroundColor: product.status_def.color || (product.status_def.allow_purchase ? '#10B981' : '#EF4444') }}
-            >
+          <div className="mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: product.status_def.color || (product.status_def.allow_purchase ? '#10B981' : '#EF4444') }}></span>
+            <span className="text-xs font-medium text-gray-600">
               {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
             </span>
           </div>
