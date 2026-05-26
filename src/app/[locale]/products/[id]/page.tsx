@@ -98,6 +98,12 @@ export default async function ProductPage({
               {name}
             </h1>
             
+            {product.sku && (
+              <p className="text-gray-400 text-sm mb-4">
+                Арт: {product.sku}
+              </p>
+            )}
+
             <div className="flex items-center gap-4 mb-6">
               <p className="text-brand font-semibold text-2xl">
                 {product.price} ₴

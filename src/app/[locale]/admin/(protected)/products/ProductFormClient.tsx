@@ -220,7 +220,12 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
  </div>
  </div>
 
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-100">
+ <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4 border-t border-gray-100">
+ <div className="space-y-2">
+ <label className="text-sm font-semibold text-foreground">Артикул (SKU)</label>
+ <input type="text" name="sku" defaultValue={initialProduct?.sku || ''} placeholder="Опціонально" className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-brand outline-none"/>
+ </div>
+
  <div className="space-y-2">
  <label className="text-sm font-semibold text-foreground">Ціна (₴) *</label>
  <input type="number"name="price"required defaultValue={initialProduct?.price} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-brand outline-none"/>

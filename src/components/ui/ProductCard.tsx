@@ -129,9 +129,15 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
             {name}
           </h3>
         </Link>
-        <p className="text-gray-500 text-sm mb-3 capitalize">
+        <p className="text-gray-500 text-sm mb-1 capitalize">
           {categoryName}
         </p>
+        {product.sku && (
+          <p className="text-gray-400 text-xs mb-3">
+            Арт: {product.sku}
+          </p>
+        )}
+        {!product.sku && <div className="mb-3"></div>}
 
         {product.status_def && product.status_def.show_in_card !== false && (
           <div className="mb-4 flex items-center gap-2">

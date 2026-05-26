@@ -1,19 +1,39 @@
 import { Link } from "@/i18n/routing";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { Plus } from "lucide-react";
+import ProductsFilterClient from "./ProductsFilterClient";
 
 export default async function AdminProductsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { locale } = await params;
+  const sp = await searchParams;
+  
+  const search = typeof sp?.search === 'string' ? sp.search : '';
+  const type = typeof sp?.type === 'string' ? sp.type : '';
+  const status = typeof sp?.status === 'string' ? sp.status : '';
   
   // Fetch products using admin client
-  const { data: products, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from("products")
     .select("*, product_images(image_url, is_primary)")
     .order("created_at", { ascending: false });
+
+  if (search) {
+    query = query.or(`name_ua.ilike.%${search}%,name_en.ilike.%${search}%,sku.ilike.%${search}%`);
+  }
+  if (type) {
+    query = query.eq('type', type);
+  }
+  if (status) {
+    query = query.eq('stock_status', status);
+  }
+
+  const { data: products, error } = await query;
 
   return (
     <main className="flex-1 p-6 lg:p-10">
@@ -28,6 +48,8 @@ export default async function AdminProductsPage({
         </Link>
       </div>
 
+      <ProductsFilterClient />
+
       {error ? (
         <div className="p-4 bg-red-50 text-red-600 rounded-xl">
           Помилка завантаження товарів: {error.message}
@@ -38,6 +60,7 @@ export default async function AdminProductsPage({
             <thead className="bg-gray-50 text-gray-500 text-sm">
               <tr>
                 <th className="px-6 py-4 font-medium">Товар</th>
+                <th className="px-6 py-4 font-medium">Артикул</th>
                 <th className="px-6 py-4 font-medium">Тип</th>
                 <th className="px-6 py-4 font-medium">Ціна</th>
                 <th className="px-6 py-4 font-medium">Статус</th>
@@ -47,8 +70,8 @@ export default async function AdminProductsPage({
             <tbody className="divide-y divide-gray-100">
               {products?.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                    Немає товарів. Додайте свій перший товар!
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                    Товарів не знайдено.
                   </td>
                 </tr>
               ) : (
@@ -69,6 +92,7 @@ export default async function AdminProductsPage({
                         </div>
                       </div>
                     </td>
+                    <td className="px-6 py-4 font-medium text-gray-600">{product.sku || '-'}</td>
                     <td className="px-6 py-4 capitalize">{product.type}</td>
                     <td className="px-6 py-4 font-medium">{product.price} ₴</td>
                     <td className="px-6 py-4">

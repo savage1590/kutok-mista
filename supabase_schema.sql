@@ -10,6 +10,7 @@ CREATE TABLE public.products (
     description_ua TEXT,
     description_en TEXT,
     price NUMERIC(10, 2) NOT NULL,
+    sku TEXT,
     stock_status TEXT NOT NULL DEFAULT 'in_stock' CHECK (stock_status IN ('in_stock', 'out_of_stock')),
     is_on_demand BOOLEAN NOT NULL DEFAULT false,
     properties JSONB, -- Для хранения размеров (одежда) или материалов (артефакты)

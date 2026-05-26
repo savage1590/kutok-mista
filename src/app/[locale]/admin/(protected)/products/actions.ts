@@ -19,6 +19,7 @@ export async function saveProduct(formData: FormData, productId?: string) {
     description_ua: formData.get("description_ua") as string,
     description_en: formData.get("description_en") as string,
     price: parseInt(formData.get("price") as string, 10),
+    sku: formData.get("sku") as string || null,
     type,
     stock_status: formData.get("stock_status") as string,
     is_on_demand: formData.get("is_on_demand") === "on",
