@@ -39,6 +39,7 @@ export interface Product {
   status_def?: StockStatusDef;
   is_on_demand: boolean;
   properties: Record<string, any>; // sizes, materials, etc.
+  sku?: string | null;
   image_url?: string;
   images?: { id: string; image_url: string; is_primary: boolean }[];
 }

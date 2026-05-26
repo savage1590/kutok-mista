@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Search } from "lucide-react";
-import { useDebouncedCallback } from "use-debounce"; // We may not have this, let's use standard timeout
 
 export default function ProductsFilterClient() {
   const router = useRouter();
