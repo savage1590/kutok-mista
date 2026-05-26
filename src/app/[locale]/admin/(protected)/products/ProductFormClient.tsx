@@ -134,7 +134,12 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
     
     setIsDeleting(true);
     try {
-      await deleteProduct(initialProduct.id);
+      const result = await deleteProduct(initialProduct.id);
+      if (result && typeof result === 'object' && 'success' in result && !result.success) {
+        alert(`Помилка видалення: ${result.error}`);
+        setIsDeleting(false);
+        return;
+      }
       window.location.href = `/${locale}/admin/products`;
     } catch (error: any) {
       alert(`Помилка видалення: ${error?.message || "Можливо товар вже є у замовленнях. Ви можете змінити його статус на 'Немає в наявності'"}`);

@@ -136,7 +136,9 @@ export async function saveProduct(formData: FormData, productId?: string) {
 
 export async function deleteProduct(productId: string) {
   const isAuthorized = await verifyAdminAccess();
-  if (!isAuthorized) throw new Error("Unauthorized");
+  if (!isAuthorized) {
+    return { success: false, error: "Неавторизований доступ" };
+  }
 
   const { error } = await supabaseAdmin
     .from("products")
@@ -145,12 +147,16 @@ export async function deleteProduct(productId: string) {
 
   if (error) {
     if (error.code === '23503') { // Foreign key constraint violation
-      throw new Error("Цей товар присутній в існуючих замовленнях. Його не можна видалити, щоб не порушити історію продажів. Будь ласка, просто змініть його статус на 'Немає в наявності'.");
+      return {
+        success: false,
+        error: "Цей товар присутній в існуючих замовленнях. Його не можна видалити, щоб не порушити історію продажів. Будь ласка, просто змініть його статус на 'Немає в наявності'."
+      };
     }
-    throw new Error(error.message);
+    return { success: false, error: error.message };
   }
   
   revalidatePath("/", "layout");
+  return { success: true };
 }
 
 export async function deleteProductImage(imageId: string, imageUrl: string) {
