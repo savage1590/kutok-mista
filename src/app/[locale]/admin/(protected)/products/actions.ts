@@ -143,7 +143,12 @@ export async function deleteProduct(productId: string) {
     .delete()
     .eq("id", productId);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (error.code === '23503') { // Foreign key constraint violation
+      throw new Error("Цей товар присутній в існуючих замовленнях. Його не можна видалити, щоб не порушити історію продажів. Будь ласка, просто змініть його статус на 'Немає в наявності'.");
+    }
+    throw new Error(error.message);
+  }
   
   revalidatePath("/", "layout");
 }

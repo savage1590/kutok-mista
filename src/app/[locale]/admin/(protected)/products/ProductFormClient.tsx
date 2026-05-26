@@ -128,18 +128,20 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
     else setType('artifact');
   };
 
- const handleDelete = async () => {
- if (!initialProduct) return;
- if (!confirm("Ви впевнені, що хочете видалити цей товар?")) return;
- 
- setIsDeleting(true);
- try {
- await deleteProduct(initialProduct.id);
- } catch (error) {
- alert("Помилка видалення товару");
- setIsDeleting(false);
- }
- };
+  const handleDelete = async () => {
+    if (!initialProduct) return;
+    if (!confirm("Ви впевнені, що хочете видалити цей товар?")) return;
+    
+    setIsDeleting(true);
+    try {
+      await deleteProduct(initialProduct.id);
+      window.location.href = `/${locale}/admin/products`;
+    } catch (error: any) {
+      alert(`Помилка видалення: ${error?.message || "Можливо товар вже є у замовленнях. Ви можете змінити його статус на 'Немає в наявності'"}`);
+      console.error(error);
+      setIsDeleting(false);
+    }
+  };
 
  return (
  <div className="max-w-4xl mx-auto py-8 px-4">

@@ -6,6 +6,7 @@ import { routing } from "@/i18n/routing";
 import { Toaster } from "react-hot-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { Analytics } from "@vercel/analytics/react";
 import "../globals.css";
 
 import { Inter } from "next/font/google";
@@ -59,6 +60,7 @@ export default async function RootLayout({
             }} 
           />
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
