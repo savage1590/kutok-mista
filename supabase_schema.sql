@@ -73,3 +73,10 @@ VALUES
     true, 
     '{"materials": ["Chrome", "Graphite", "Pearl"]}'::jsonb
 );
+
+-- Таблиця для Telegram бота (збереження стану)
+CREATE TABLE public.bot_messages (
+    group_message_id BIGINT PRIMARY KEY,
+    client_user_id BIGINT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
