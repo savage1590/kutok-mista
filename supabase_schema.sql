@@ -85,3 +85,5 @@ CREATE TABLE public.bot_messages (
 ALTER TABLE public.product_images ADD COLUMN IF NOT EXISTS color TEXT;
 
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'pending';
+
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS order_number TEXT UNIQUE;

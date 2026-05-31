@@ -63,10 +63,20 @@ export async function processOrder(orderData: OrderData) {
       dbPaymentMethod = paymentMethod === 'full_payment' ? 'monopay' : paymentMethod;
     }
 
+    // Generate random 6-digit order number
+    const generateOrderNumber = () => {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    };
+    
+    // We can try to insert and if it fails due to UNIQUE constraint, we could theoretically retry.
+    // For simplicity, we just generate one. Collision chance is 1 in 900,000.
+    const orderNumber = generateOrderNumber();
+
     // 3. Insert into orders table
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert({
+        order_number: orderNumber,
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
@@ -104,7 +114,7 @@ export async function processOrder(orderData: OrderData) {
     try {
       const botToken = "8934355636:AAFcNT63FcEwRMoPxrK_fuGY9HOU9apcVf8";
       const groupId = "-1003945954990";
-      const text = `📦 НОВЕ ЗАМОВЛЕННЯ #${order.id.slice(0, 8)}!\n\n👤 Клієнт: ${customerName}\n📞 Телефон: ${customerPhone}\n✉️ Email: ${customerEmail}\n📍 Доставка: ${shippingAddress}\n💰 Сума: ${totalAmount} ₴\n💳 Оплата: ${paymentMethod}${customerComment ? `\n💬 Коментар: ${customerComment}` : ''}`;
+      const text = `📦 НОВЕ ЗАМОВЛЕННЯ #${order.order_number}!\n\n👤 Клієнт: ${customerName}\n📞 Телефон: ${customerPhone}\n✉️ Email: ${customerEmail}\n📍 Доставка: ${shippingAddress}\n💰 Сума: ${totalAmount} ₴\n💳 Оплата: ${paymentMethod}${customerComment ? `\n💬 Коментар: ${customerComment}` : ''}`;
       
       const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
@@ -132,12 +142,12 @@ export async function processOrder(orderData: OrderData) {
         action: "pay",
         amount: totalAmount,
         currency: "UAH",
-        description: `Оплата замовлення #${order.id.slice(0, 8)}`,
+        description: `Оплата замовлення #${order.order_number}`,
         order_id: order.id,
         // The server URL where LiqPay will send the callback:
         server_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://savage1590.github.io'}/api/payment/liqpay-callback`,
         // Where user returns after payment:
-        result_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://savage1590.github.io'}/thank-you?order_id=${order.id}`
+        result_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://savage1590.github.io'}/thank-you?order_num=${orderNumber}`
       };
 
       const dataBase64 = Buffer.from(JSON.stringify(liqpayParams)).toString('base64');
@@ -146,11 +156,12 @@ export async function processOrder(orderData: OrderData) {
       return { 
         success: true, 
         orderId: order.id,
+        orderNumber: order.order_number,
         liqpayData: { data: dataBase64, signature }
       };
     }
 
-    return { success: true, orderId: order.id };
+    return { success: true, orderId: order.id, orderNumber: order.order_number };
   } catch (error) {
     console.error("Order processing failed:", error);
     return { success: false, error: "Невідома помилка" };

@@ -41,10 +41,12 @@ export async function POST(req: Request) {
     const paymentStatus = isSuccess ? 'paid' : (status === 'error' || status === 'failure' ? 'failed' : 'pending');
 
     // Update DB
-    const { error: updateError } = await supabaseAdmin
+    const { data: updatedOrder, error: updateError } = await supabaseAdmin
       .from('orders')
       .update({ payment_status: paymentStatus })
-      .eq('id', orderId);
+      .eq('id', orderId)
+      .select('order_number')
+      .single();
 
     if (updateError) {
       console.error("Error updating order payment status:", updateError);
@@ -56,7 +58,8 @@ export async function POST(req: Request) {
       try {
         const botToken = "8934355636:AAFcNT63FcEwRMoPxrK_fuGY9HOU9apcVf8";
         const groupId = "-1003945954990";
-        const text = `✅ ЗАМОВЛЕННЯ #${orderId.slice(0, 8)} ОПЛАЧЕНО!\n\nОплата через LiqPay успішно отримана.`;
+        const orderNum = updatedOrder?.order_number || orderId.slice(0, 8);
+        const text = `✅ ЗАМОВЛЕННЯ #${orderNum} ОПЛАЧЕНО!\n\nОплата через LiqPay успішно отримана.`;
         
         await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: 'POST',

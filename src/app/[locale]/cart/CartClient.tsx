@@ -107,7 +107,7 @@ export default function CartClient({ locale }: { locale: string }) {
       }
 
       // 5. Normal redirect for cash_on_delivery or full_payment
-      router.push(`/thank-you?order_id=${result.orderId}`);
+      router.push(`/thank-you?order_num=${result.orderNumber}`);
       
     } catch (error) {
       console.error("Checkout failed:", error);

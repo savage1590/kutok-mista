@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { CheckCircle } from "lucide-react";
 
-export default function ThankYouPage({ searchParams }: { searchParams: { order_id?: string } }) {
+export default function ThankYouPage({ searchParams }: { searchParams: { order_num?: string } }) {
   // In a real scenario, you can fetch order details using the order_id if needed
   
   return (
@@ -20,9 +20,9 @@ export default function ThankYouPage({ searchParams }: { searchParams: { order_i
           Ваше замовлення успішно створено. Якщо ви обрали оплату через LiqPay і платіж пройшов успішно, статус вашого замовлення оновлено автоматично. Найближчим часом ми зв'яжемось з вами для підтвердження.
         </p>
 
-        {searchParams?.order_id && (
+        {searchParams?.order_num && (
           <p className="text-sm text-gray-500 mb-8 font-mono bg-gray-100 py-2 px-4 rounded-lg inline-block">
-            Номер замовлення: #{searchParams.order_id.slice(0, 8)}
+            Номер замовлення: #{searchParams.order_num}
           </p>
         )}
 
