@@ -7,6 +7,8 @@ import { Trash2, Plus, Minus } from "lucide-react";
 import { processOrder } from "./actions";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
+import { NovaPoshtaCitySelect } from "@/components/checkout/NovaPoshtaCitySelect";
+import { NovaPoshtaWarehouseSelect } from "@/components/checkout/NovaPoshtaWarehouseSelect";
 
 export default function CartClient({ locale }: { locale: string }) {
   const t = useTranslations("Cart");
@@ -17,10 +19,12 @@ export default function CartClient({ locale }: { locale: string }) {
   const [lastName, setLastName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [middleName, setMiddleName] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   
+  const [deliveryType, setDeliveryType] = useState<"branch" | "locker">("branch");
   const [city, setCity] = useState("");
+  const [cityRef, setCityRef] = useState("");
   const [branch, setBranch] = useState("");
   const [comment, setComment] = useState("");
   
@@ -255,11 +259,51 @@ export default function CartClient({ locale }: { locale: string }) {
               </div>
             </button>
             {activeStep === 2 && (
-              <div className="p-4 flex flex-col gap-3 border-t border-gray-100">
-                <p className="text-xs text-gray-500 italic mb-1">{t('shippingInfo')}</p>
-                <input required placeholder={`${t('city')} *`} value={city} onChange={e => {setCity(e.target.value); setStep2Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step2Error && !city.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
-                <input required placeholder={`${t('branch')} *`} value={branch} onChange={e => {setBranch(e.target.value); setStep2Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step2Error && !branch.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
-                <textarea placeholder={locale === "ua" ? "Коментар до замовлення (необов'язково)" : "Order comment (optional)"} value={comment} onChange={e => setComment(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors resize-none mt-2" />
+              <div className="p-4 flex flex-col gap-4 border-t border-gray-100">
+                <div className="flex bg-gray-100 p-1 rounded-xl">
+                  <button 
+                    type="button"
+                    onClick={() => { setDeliveryType("branch"); setBranch(""); }}
+                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${deliveryType === "branch" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-900"}`}
+                  >
+                    Відділення
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => { setDeliveryType("locker"); setBranch(""); }}
+                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${deliveryType === "locker" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-900"}`}
+                  >
+                    Поштомат
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <NovaPoshtaCitySelect 
+                    value={city}
+                    onChange={(cityName, newCityRef) => {
+                      setCity(cityName);
+                      setCityRef(newCityRef);
+                      setBranch(""); // reset branch when city changes
+                      setStep2Error("");
+                    }}
+                    placeholder={`${t('city')} *`}
+                    hasError={!!step2Error && !city.trim()}
+                  />
+
+                  <NovaPoshtaWarehouseSelect 
+                    cityRef={cityRef}
+                    value={branch}
+                    onChange={(warehouseName) => {
+                      setBranch(warehouseName);
+                      setStep2Error("");
+                    }}
+                    placeholder={`${t('branch')} *`}
+                    hasError={!!step2Error && !branch.trim()}
+                    isLockerOnly={deliveryType === "locker"}
+                  />
+                </div>
+
+                <textarea placeholder={locale === "ua" ? "Коментар до замовлення (необов'язково)" : "Order comment (optional)"} value={comment} onChange={e => setComment(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors resize-none" />
                 
                 {step2Error && <p className="text-red-500 text-sm font-medium mt-1">{step2Error}</p>}
                 
