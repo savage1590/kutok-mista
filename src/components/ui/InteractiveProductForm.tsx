@@ -8,7 +8,7 @@ import WishlistButton from "./WishlistButton";
 import { Truck, CreditCard, Info, Ruler } from "lucide-react";
 import toast from "react-hot-toast";
 
-export default function InteractiveProductForm({ product, sizeChart }: { product: Product; sizeChart?: any }) {
+export default function InteractiveProductForm({ product, sizeChart, onColorChange }: { product: Product; sizeChart?: any; onColorChange?: (color: string) => void }) {
   const t = useTranslations("Product");
   const locale = useLocale();
   const addItem = useCartStore((state) => state.addItem);
@@ -29,6 +29,9 @@ export default function InteractiveProductForm({ product, sizeChart }: { product
 
   const toggleProperty = (key: string, val: string) => {
     setSelectedProperties(prev => ({ ...prev, [key]: val }));
+    if (['colors', 'color', 'колір', 'кольори'].includes(key.toLowerCase()) && onColorChange) {
+      onColorChange(val);
+    }
   };
 
   return (

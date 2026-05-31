@@ -12,7 +12,7 @@ export default async function EditProductPage({
 
  const { data: product, error } = await supabaseAdmin
  .from("products")
- .select("*, product_images(id, image_url, is_primary)")
+    .select("*, product_images(id, image_url, is_primary, color)")
  .eq("id", id)
  .single();
 

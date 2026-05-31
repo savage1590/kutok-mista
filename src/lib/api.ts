@@ -48,8 +48,8 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
   const hasCategory = categorySlugs.length > 0;
 
   const selectQuery = hasCategory
-    ? `*, categories!inner(*), product_images(image_url, is_primary)`
-    : `*, categories(*), product_images(image_url, is_primary)`;
+    ? `*, categories!inner(*), product_images(image_url, is_primary, color)`
+    : `*, categories(*), product_images(image_url, is_primary, color)`;
 
   let query = supabase
     .from('products')
@@ -141,7 +141,8 @@ export async function getProductById(id: string): Promise<Product | null> {
       product_images (
         id,
         image_url,
-        is_primary
+        is_primary,
+        color
       )
     `)
     .eq('id', id)

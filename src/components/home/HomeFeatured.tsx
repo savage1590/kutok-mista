@@ -22,7 +22,7 @@ export default async function HomeFeatured({ locale }: { locale: string }) {
   if (featuredIds.length > 0) {
     const { data } = await supabase
       .from("products")
-      .select("*, product_images(image_url, is_primary)")
+      .select("*, product_images(image_url, is_primary, color)")
       .in("id", featuredIds);
       
     // Sort them exactly as ordered in the settings array
@@ -40,7 +40,7 @@ export default async function HomeFeatured({ locale }: { locale: string }) {
     // Fallback: Fetch 4 latest products if none selected
     const { data } = await supabase
       .from("products")
-      .select("*, product_images(image_url, is_primary)")
+      .select("*, product_images(image_url, is_primary, color)")
       .order("created_at", { ascending: false })
       .limit(4);
       

@@ -28,6 +28,7 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [hoveredColor, setHoveredColor] = useState<string | null>(null);
   const addItem = useCartStore((state) => state.addItem);
   
   const hasProperties = Object.keys(product.properties || {}).some(k => 
@@ -49,7 +50,18 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
   };
   
   const sortedImages = product.images ? [...product.images].sort((a: any, b: any) => (a.is_primary ? -1 : b.is_primary ? 1 : 0)) : [];
-  const displayImage = sortedImages.length > 0 ? sortedImages[currentImageIndex].image_url : product.image_url;
+  
+  let displayImage = product.image_url;
+  if (hoveredColor) {
+    const colorImage = sortedImages.find(img => img.color === hoveredColor);
+    if (colorImage) {
+      displayImage = colorImage.image_url;
+    } else if (sortedImages.length > 0) {
+      displayImage = sortedImages[currentImageIndex].image_url;
+    }
+  } else if (sortedImages.length > 0) {
+    displayImage = sortedImages[currentImageIndex].image_url;
+  }
 
   const handlePrevImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -145,6 +157,21 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
             <span className="text-xs font-medium text-gray-600">
               {locale === "ua" ? product.status_def.name_ua : product.status_def.name_en}
             </span>
+          </div>
+        )}
+        
+        {Object.keys(product.properties || {}).find(k => ['colors', 'color', 'колір', 'кольори'].includes(k.toLowerCase())) && product.properties[Object.keys(product.properties || {}).find(k => ['colors', 'color', 'колір', 'кольори'].includes(k.toLowerCase())) as string].length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-1">
+            {product.properties[Object.keys(product.properties || {}).find(k => ['colors', 'color', 'колір', 'кольори'].includes(k.toLowerCase())) as string].map((color: string) => (
+              <span
+                key={color}
+                onMouseEnter={() => setHoveredColor(color)}
+                onMouseLeave={() => setHoveredColor(null)}
+                className="text-[10px] px-2 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-600 cursor-default hover:border-brand hover:text-brand transition-colors"
+              >
+                {color}
+              </span>
+            ))}
           </div>
         )}
         

@@ -203,3 +203,17 @@ export async function setPrimaryImage(productId: string, imageId: string) {
 
   revalidatePath("/", "layout");
 }
+
+export async function setImageColor(imageId: string, color: string | null) {
+  const isAuthorized = await verifyAdminAccess();
+  if (!isAuthorized) throw new Error("Unauthorized");
+
+  const { error } = await supabaseAdmin
+    .from("product_images")
+    .update({ color })
+    .eq("id", imageId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/", "layout");
+}

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Product, Category, ProductType } from "@/lib/types";
-import { saveProduct, deleteProduct, deleteProductImage, setPrimaryImage } from "./actions";
+import { saveProduct, deleteProduct, deleteProductImage, setPrimaryImage, setImageColor } from "./actions";
 import { ArrowLeft, Save, Trash2, Upload, Star } from "lucide-react";
 import toast from "react-hot-toast";
 import ImageCropper from "@/components/ui/ImageCropper";
@@ -29,6 +29,7 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isDeletingImage, setIsDeletingImage] = useState<string | null>(null);
   const [isSettingPrimary, setIsSettingPrimary] = useState<string | null>(null);
+  const [isSettingColor, setIsSettingColor] = useState<string | null>(null);
   
   // Cropper state
   const [croppedFiles, setCroppedFiles] = useState<File[]>([]);
@@ -93,6 +94,19 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
       toast.error(err.message);
     } finally {
       setIsSettingPrimary(null);
+    }
+  };
+
+  const handleSetColor = async (imageId: string, color: string) => {
+    if (!initialProduct?.id) return;
+    setIsSettingColor(imageId);
+    try {
+      await setImageColor(imageId, color === "none" ? null : color);
+      toast.success("Колір зображення збережено");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsSettingColor(null);
     }
   };
 
@@ -377,37 +391,56 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
         <p className="text-sm text-gray-500 mb-3">Збережені зображення:</p>
         <div className="flex flex-wrap gap-4">
           {initialProduct.images.map((img) => (
-            <div key={img.id} className="relative group rounded-xl overflow-hidden border border-gray-200">
-              <img src={img.image_url} alt="Product" className="w-32 h-32 object-cover" />
-              
-              {/* Primary badge */}
-              {img.is_primary && (
-                <div className="absolute top-2 left-2 bg-brand text-white text-xs px-2 py-1 rounded-md font-bold flex items-center gap-1 shadow-sm">
-                  <Star className="w-3 h-3 fill-white" /> Головне
-                </div>
-              )}
+            <div key={img.id} className="flex flex-col gap-2">
+              <div className="relative group rounded-xl overflow-hidden border border-gray-200">
+                <img src={img.image_url} alt="Product" className="w-32 h-32 object-cover" />
+                
+                {/* Primary badge */}
+                {img.is_primary && (
+                  <div className="absolute top-2 left-2 bg-brand text-white text-xs px-2 py-1 rounded-md font-bold flex items-center gap-1 shadow-sm">
+                    <Star className="w-3 h-3 fill-white" /> Головне
+                  </div>
+                )}
 
-              {/* Actions Overlay */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                {!img.is_primary && (
+                {/* Actions Overlay */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                  {!img.is_primary && (
+                    <button
+                      type="button"
+                      disabled={isSettingPrimary === img.id}
+                      onClick={() => handleSetPrimary(img.id)}
+                      className="bg-white text-gray-900 text-xs px-3 py-1.5 rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    >
+                      {isSettingPrimary === img.id ? "..." : "Зробити головним"}
+                    </button>
+                  )}
                   <button
                     type="button"
-                    disabled={isSettingPrimary === img.id}
-                    onClick={() => handleSetPrimary(img.id)}
-                    className="bg-white text-gray-900 text-xs px-3 py-1.5 rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    disabled={isDeletingImage === img.id}
+                    onClick={() => handleDeleteImage(img.id, img.image_url)}
+                    className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium hover:bg-red-600 transition-colors flex items-center gap-1 disabled:opacity-50"
                   >
-                    {isSettingPrimary === img.id ? "..." : "Зробити головним"}
+                    <Trash2 className="w-3 h-3" /> {isDeletingImage === img.id ? "..." : "Видалити"}
                   </button>
-                )}
-                <button
-                  type="button"
-                  disabled={isDeletingImage === img.id}
-                  onClick={() => handleDeleteImage(img.id, img.image_url)}
-                  className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium hover:bg-red-600 transition-colors flex items-center gap-1 disabled:opacity-50"
-                >
-                  <Trash2 className="w-3 h-3" /> {isDeletingImage === img.id ? "..." : "Видалити"}
-                </button>
+                </div>
               </div>
+              
+              {/* Color Assignment */}
+              {Object.keys(properties).find(k => ['colors', 'color', 'колір', 'кольори'].includes(k.toLowerCase())) && properties[Object.keys(properties).find(k => ['colors', 'color', 'колір', 'кольори'].includes(k.toLowerCase())) as string].length > 0 && (
+                <div className="w-32">
+                  <select 
+                    className="w-full text-xs px-2 py-1.5 rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-brand"
+                    value={img.color || "none"}
+                    onChange={(e) => handleSetColor(img.id, e.target.value)}
+                    disabled={isSettingColor === img.id}
+                  >
+                    <option value="none">Усі кольори</option>
+                    {properties[Object.keys(properties).find(k => ['colors', 'color', 'колір', 'кольори'].includes(k.toLowerCase())) as string].map((color: string) => (
+                      <option key={color} value={color}>{color}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           ))}
         </div>

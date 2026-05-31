@@ -41,5 +41,5 @@ export interface Product {
   properties: Record<string, any>; // sizes, materials, etc.
   sku?: string | null;
   image_url?: string;
-  images?: { id: string; image_url: string; is_primary: boolean }[];
+  images?: { id: string; image_url: string; is_primary: boolean; color?: string | null }[];
 }

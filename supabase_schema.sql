@@ -80,3 +80,6 @@ CREATE TABLE public.bot_messages (
     client_user_id BIGINT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Додавання кольору до фотографій
+ALTER TABLE public.product_images ADD COLUMN IF NOT EXISTS color TEXT;
