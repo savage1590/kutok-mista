@@ -28,6 +28,8 @@ export default function CartClient({ locale }: { locale: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
+  const [step1Error, setStep1Error] = useState("");
+  const [step2Error, setStep2Error] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -57,13 +59,15 @@ export default function CartClient({ locale }: { locale: string }) {
 
     // Validate Step 1
     if (!lastName.trim() || !firstName.trim() || !email.trim() || !phone.trim()) {
-      toast.error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля в Контактних даних" : "Please fill in all required fields in Contact details");
+      setStep1Error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля" : "Please fill in all required fields");
+      toast.error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля" : "Please fill in all required fields");
       setActiveStep(1);
       return;
     }
 
     // Validate Step 2
     if (!city.trim() || !branch.trim()) {
+      setStep2Error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля в Доставці" : "Please fill in all required shipping fields");
       toast.error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля в Доставці" : "Please fill in all required shipping fields");
       setActiveStep(2);
       return;
@@ -208,15 +212,22 @@ export default function CartClient({ locale }: { locale: string }) {
             </button>
             {activeStep === 1 && (
               <div className="p-4 flex flex-col gap-3 border-t border-gray-100">
-                <input required placeholder={t('lastName')} value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
-                <input required placeholder={t('firstName')} value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
+                <input required placeholder={`${t('lastName')} *`} value={lastName} onChange={e => {setLastName(e.target.value); setStep1Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step1Error && !lastName.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
+                <input required placeholder={`${t('firstName')} *`} value={firstName} onChange={e => {setFirstName(e.target.value); setStep1Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step1Error && !firstName.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
                 <input placeholder={t('middleName')} value={middleName} onChange={e => setMiddleName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
-                <input type="email" required placeholder={t('email')} value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
-                <input type="tel" required placeholder={t('phone')} value={phone} onChange={e => setPhone(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
+                <input type="email" required placeholder={`${t('email')} *`} value={email} onChange={e => {setEmail(e.target.value); setStep1Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step1Error && !email.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
+                <input type="tel" required placeholder={`${t('phone')} *`} value={phone} onChange={e => {setPhone(e.target.value); setStep1Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step1Error && !phone.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
+                
+                {step1Error && <p className="text-red-500 text-sm font-medium mt-1">{step1Error}</p>}
                 
                 <button type="button" onClick={() => { 
-                  if(lastName.trim() && firstName.trim() && email.trim() && phone.trim()) setActiveStep(2);
-                  else toast.error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля" : "Please fill in all required fields");
+                  if(lastName.trim() && firstName.trim() && email.trim() && phone.trim()) {
+                    setStep1Error("");
+                    setActiveStep(2);
+                  } else {
+                    setStep1Error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля з зірочкою (*)" : "Please fill in all required fields with (*)");
+                    toast.error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля" : "Please fill in all required fields");
+                  }
                 }} className="w-full py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold mt-2 transition-colors">
                   {t('next')}
                 </button>
@@ -246,13 +257,20 @@ export default function CartClient({ locale }: { locale: string }) {
             {activeStep === 2 && (
               <div className="p-4 flex flex-col gap-3 border-t border-gray-100">
                 <p className="text-xs text-gray-500 italic mb-1">{t('shippingInfo')}</p>
-                <input required placeholder={t('city')} value={city} onChange={e => setCity(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
-                <input required placeholder={t('branch')} value={branch} onChange={e => setBranch(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
+                <input required placeholder={`${t('city')} *`} value={city} onChange={e => {setCity(e.target.value); setStep2Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step2Error && !city.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
+                <input required placeholder={`${t('branch')} *`} value={branch} onChange={e => {setBranch(e.target.value); setStep2Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step2Error && !branch.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
                 <textarea placeholder={locale === "ua" ? "Коментар до замовлення (необов'язково)" : "Order comment (optional)"} value={comment} onChange={e => setComment(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors resize-none mt-2" />
                 
+                {step2Error && <p className="text-red-500 text-sm font-medium mt-1">{step2Error}</p>}
+                
                 <button type="button" onClick={() => { 
-                  if(city.trim() && branch.trim()) setActiveStep(3);
-                  else toast.error(locale === 'ua' ? "Будь ласка, вкажіть місто та відділення" : "Please fill in city and branch");
+                  if(city.trim() && branch.trim()) {
+                    setStep2Error("");
+                    setActiveStep(3);
+                  } else {
+                    setStep2Error(locale === 'ua' ? "Будь ласка, вкажіть місто та відділення з зірочкою (*)" : "Please fill in city and branch with (*)");
+                    toast.error(locale === 'ua' ? "Будь ласка, вкажіть місто та відділення" : "Please fill in city and branch");
+                  }
                 }} className="w-full py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold mt-2 transition-colors">
                   {t('next')}
                 </button>
