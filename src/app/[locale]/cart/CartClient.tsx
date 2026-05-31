@@ -214,7 +214,10 @@ export default function CartClient({ locale }: { locale: string }) {
                 <input type="email" required placeholder={t('email')} value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
                 <input type="tel" required placeholder={t('phone')} value={phone} onChange={e => setPhone(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
                 
-                <button type="button" onClick={() => { if(lastName && firstName && email && phone) setActiveStep(2) }} className="w-full py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold mt-2 transition-colors">
+                <button type="button" onClick={() => { 
+                  if(lastName.trim() && firstName.trim() && email.trim() && phone.trim()) setActiveStep(2);
+                  else toast.error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля" : "Please fill in all required fields");
+                }} className="w-full py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold mt-2 transition-colors">
                   {t('next')}
                 </button>
               </div>
@@ -247,7 +250,10 @@ export default function CartClient({ locale }: { locale: string }) {
                 <input required placeholder={t('branch')} value={branch} onChange={e => setBranch(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
                 <textarea placeholder={locale === "ua" ? "Коментар до замовлення (необов'язково)" : "Order comment (optional)"} value={comment} onChange={e => setComment(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors resize-none mt-2" />
                 
-                <button type="button" onClick={() => { if(city && branch) setActiveStep(3) }} className="w-full py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold mt-2 transition-colors">
+                <button type="button" onClick={() => { 
+                  if(city.trim() && branch.trim()) setActiveStep(3);
+                  else toast.error(locale === 'ua' ? "Будь ласка, вкажіть місто та відділення" : "Please fill in city and branch");
+                }} className="w-full py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold mt-2 transition-colors">
                   {t('next')}
                 </button>
               </div>
