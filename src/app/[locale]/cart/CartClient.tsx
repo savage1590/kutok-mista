@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/lib/store";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { processOrder } from "./actions";
 import { useTranslations } from "next-intl";
@@ -25,9 +25,9 @@ export default function CartClient({ locale }: { locale: string }) {
   
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -35,7 +35,7 @@ export default function CartClient({ locale }: { locale: string }) {
 
   if (!mounted) return <div className="p-12 text-center">{t('loading')}</div>;
 
-  if (items.length === 0 && !success) {
+  if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-32 relative">
         <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
@@ -44,23 +44,6 @@ export default function CartClient({ locale }: { locale: string }) {
         <h2 className="text-3xl font-bold mb-6 relative z-10">{t('empty')}</h2>
         <Link href="/products" className="bg-brand text-white px-10 py-4 rounded-full font-bold relative z-10 shadow-lg hover:bg-brand-light transition-colors text-lg">
           {t('goCatalog')}
-        </Link>
-      </div>
-    );
-  }
-
-  if (success) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center max-w-lg mx-auto">
-        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
-          <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-        </div>
-        <h2 className="text-3xl font-bold mb-4">{t('thanksTitle')}</h2>
-        <p className="text-gray-600 mb-8">
-          {t('thanksDesc')}
-        </p>
-        <Link href="/products" className="bg-brand text-white px-8 py-3 rounded-full font-bold">
-          {t('backToShopping')}
         </Link>
       </div>
     );
@@ -96,20 +79,35 @@ export default function CartClient({ locale }: { locale: string }) {
         throw new Error(result.error);
       }
 
-      // 3. Clear cart & show success
+      // 3. Clear cart
       clearCart();
-      setSuccess(true);
       
-      // 4. Reset form fields
-      setFirstName("");
-      setLastName("");
-      setMiddleName("");
-      setPhone("");
-      setEmail("");
-      setCity("");
-      setBranch("");
-      setComment("");
-      setPaymentMethod("cash_on_delivery");
+      // 4. Handle LiqPay Redirect
+      if (result.liqpayData) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://www.liqpay.ua/api/3/checkout';
+        form.style.display = 'none';
+
+        const dataInput = document.createElement('input');
+        dataInput.type = 'hidden';
+        dataInput.name = 'data';
+        dataInput.value = result.liqpayData.data;
+        form.appendChild(dataInput);
+
+        const signatureInput = document.createElement('input');
+        signatureInput.type = 'hidden';
+        signatureInput.name = 'signature';
+        signatureInput.value = result.liqpayData.signature;
+        form.appendChild(signatureInput);
+
+        document.body.appendChild(form);
+        form.submit();
+        return; // wait for redirect
+      }
+
+      // 5. Normal redirect for cash_on_delivery or full_payment
+      router.push(`/thank-you?order_id=${result.orderId}`);
       
     } catch (error) {
       console.error("Checkout failed:", error);
@@ -254,11 +252,12 @@ export default function CartClient({ locale }: { locale: string }) {
                   <input type="radio" name="payment" value="monopay" checked={paymentMethod === 'monopay'} onChange={e => setPaymentMethod(e.target.value)} className="accent-brand" />
                   <span>MonoPay</span>
                 </label>
-                <label className="hidden items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                  <input type="radio" name="payment" value="liqpay" checked={paymentMethod === 'liqpay'} onChange={e => setPaymentMethod(e.target.value)} className="accent-brand" />
-                  <span>LiqPay (ПриватБанк)</span>
-                </label>
                 */}
+                
+                <label className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input type="radio" name="payment" value="liqpay" checked={paymentMethod === 'liqpay'} onChange={e => setPaymentMethod(e.target.value)} className="accent-brand" />
+                  <span className="font-semibold text-foreground">Онлайн-оплата (LiqPay)</span>
+                </label>
 
                 <label className="flex items-start gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
                   <input type="radio" name="payment" value="cash_on_delivery" checked={paymentMethod === 'cash_on_delivery'} onChange={e => setPaymentMethod(e.target.value)} className="accent-brand mt-1" />

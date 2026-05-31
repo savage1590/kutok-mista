@@ -83,3 +83,5 @@ CREATE TABLE public.bot_messages (
 
 -- Додавання кольору до фотографій
 ALTER TABLE public.product_images ADD COLUMN IF NOT EXISTS color TEXT;
+
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'pending';

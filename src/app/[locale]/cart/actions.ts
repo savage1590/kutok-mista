@@ -120,6 +120,36 @@ export async function processOrder(orderData: OrderData) {
       console.error("Failed to send telegram notification", err);
     }
 
+    // 6. Generate LiqPay Payload if needed
+    if (paymentMethod === 'liqpay') {
+      const crypto = require('crypto');
+      const publicKey = process.env.LIQPAY_PUBLIC_KEY || '';
+      const privateKey = process.env.LIQPAY_PRIVATE_KEY || '';
+      
+      const liqpayParams = {
+        public_key: publicKey,
+        version: 3,
+        action: "pay",
+        amount: totalAmount,
+        currency: "UAH",
+        description: `Оплата замовлення #${order.id.slice(0, 8)}`,
+        order_id: order.id,
+        // The server URL where LiqPay will send the callback:
+        server_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://savage1590.github.io'}/api/payment/liqpay-callback`,
+        // Where user returns after payment:
+        result_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://savage1590.github.io'}/thank-you?order_id=${order.id}`
+      };
+
+      const dataBase64 = Buffer.from(JSON.stringify(liqpayParams)).toString('base64');
+      const signature = crypto.createHash('sha1').update(privateKey + dataBase64 + privateKey).digest('base64');
+
+      return { 
+        success: true, 
+        orderId: order.id,
+        liqpayData: { data: dataBase64, signature }
+      };
+    }
+
     return { success: true, orderId: order.id };
   } catch (error) {
     console.error("Order processing failed:", error);
