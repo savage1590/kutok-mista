@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         modelName: 'Address',
         calledMethod: 'getWarehouses',
         methodProperties: {
-          CityRef: cityRef,
+          SettlementRef: cityRef,
           Language: 'UA'
         }
       })

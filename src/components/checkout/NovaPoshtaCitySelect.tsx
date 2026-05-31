@@ -75,7 +75,7 @@ export function NovaPoshtaCitySelect({ value, onChange, placeholder, hasError }:
 
   const handleSelect = (city: City) => {
     setQuery(city.name);
-    onChange(city.name, city.deliveryCityRef);
+    onChange(city.name, city.ref);
     setIsOpen(false);
   };
 
