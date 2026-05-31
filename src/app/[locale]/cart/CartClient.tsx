@@ -6,6 +6,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { processOrder } from "./actions";
 import { useTranslations } from "next-intl";
+import toast from "react-hot-toast";
 
 export default function CartClient({ locale }: { locale: string }) {
   const t = useTranslations("Cart");
@@ -56,14 +57,14 @@ export default function CartClient({ locale }: { locale: string }) {
 
     // Validate Step 1
     if (!lastName.trim() || !firstName.trim() || !email.trim() || !phone.trim()) {
-      alert(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля в Контактних даних" : "Please fill in all required fields in Contact details");
+      toast.error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля в Контактних даних" : "Please fill in all required fields in Contact details");
       setActiveStep(1);
       return;
     }
 
     // Validate Step 2
     if (!city.trim() || !branch.trim()) {
-      alert(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля в Доставці" : "Please fill in all required shipping fields");
+      toast.error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля в Доставці" : "Please fill in all required shipping fields");
       setActiveStep(2);
       return;
     }
@@ -126,7 +127,7 @@ export default function CartClient({ locale }: { locale: string }) {
       
     } catch (error) {
       console.error("Checkout failed:", error);
-      alert(error instanceof Error ? error.message : t('errorAlert'));
+      toast.error(error instanceof Error ? error.message : t('errorAlert'));
     } finally {
       setIsSubmitting(false);
     }
@@ -228,7 +229,7 @@ export default function CartClient({ locale }: { locale: string }) {
                 if (lastName.trim() && firstName.trim() && email.trim() && phone.trim()) {
                   setActiveStep(2);
                 } else {
-                  alert(locale === 'ua' ? "Спочатку заповніть Контактні дані" : "Please fill in Contact details first");
+                  toast.error(locale === 'ua' ? "Спочатку заповніть Контактні дані" : "Please fill in Contact details first");
                   setActiveStep(1);
                 }
               }}
@@ -259,10 +260,10 @@ export default function CartClient({ locale }: { locale: string }) {
               type="button" 
               onClick={() => {
                 if (!lastName.trim() || !firstName.trim() || !email.trim() || !phone.trim()) {
-                  alert(locale === 'ua' ? "Спочатку заповніть Контактні дані" : "Please fill in Contact details first");
+                  toast.error(locale === 'ua' ? "Спочатку заповніть Контактні дані" : "Please fill in Contact details first");
                   setActiveStep(1);
                 } else if (!city.trim() || !branch.trim()) {
-                  alert(locale === 'ua' ? "Спочатку заповніть дані Доставки" : "Please fill in Shipping details first");
+                  toast.error(locale === 'ua' ? "Спочатку заповніть дані Доставки" : "Please fill in Shipping details first");
                   setActiveStep(2);
                 } else {
                   setActiveStep(3);
