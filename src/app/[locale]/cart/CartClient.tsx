@@ -53,6 +53,21 @@ export default function CartClient({ locale }: { locale: string }) {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate Step 1
+    if (!lastName.trim() || !firstName.trim() || !email.trim() || !phone.trim()) {
+      alert(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля в Контактних даних" : "Please fill in all required fields in Contact details");
+      setActiveStep(1);
+      return;
+    }
+
+    // Validate Step 2
+    if (!city.trim() || !branch.trim()) {
+      alert(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля в Доставці" : "Please fill in all required shipping fields");
+      setActiveStep(2);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -209,7 +224,14 @@ export default function CartClient({ locale }: { locale: string }) {
           <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm">
             <button 
               type="button" 
-              onClick={() => setActiveStep(2)}
+              onClick={() => {
+                if (lastName.trim() && firstName.trim() && email.trim() && phone.trim()) {
+                  setActiveStep(2);
+                } else {
+                  alert(locale === 'ua' ? "Спочатку заповніть Контактні дані" : "Please fill in Contact details first");
+                  setActiveStep(1);
+                }
+              }}
               className="w-full flex items-center justify-between p-4 font-bold text-left bg-gray-50/50 hover:bg-gray-100 transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -235,7 +257,17 @@ export default function CartClient({ locale }: { locale: string }) {
           <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm">
             <button 
               type="button" 
-              onClick={() => setActiveStep(3)}
+              onClick={() => {
+                if (!lastName.trim() || !firstName.trim() || !email.trim() || !phone.trim()) {
+                  alert(locale === 'ua' ? "Спочатку заповніть Контактні дані" : "Please fill in Contact details first");
+                  setActiveStep(1);
+                } else if (!city.trim() || !branch.trim()) {
+                  alert(locale === 'ua' ? "Спочатку заповніть дані Доставки" : "Please fill in Shipping details first");
+                  setActiveStep(2);
+                } else {
+                  setActiveStep(3);
+                }
+              }}
               className="w-full flex items-center justify-between p-4 font-bold text-left bg-gray-50/50 hover:bg-gray-100 transition-colors"
             >
               <div className="flex items-center gap-3">
