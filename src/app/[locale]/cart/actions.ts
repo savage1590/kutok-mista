@@ -144,10 +144,10 @@ export async function processOrder(orderData: OrderData) {
         currency: "UAH",
         description: `Оплата замовлення #${order.order_number}`,
         order_id: order.id,
-        // The server URL where LiqPay will send the callback:
-        server_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://savage1590.github.io'}/api/payment/liqpay-callback`,
+        // API route that LiqPay will call in the background to update order status:
+        server_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.kutok-mista.com.ua'}/api/payment/liqpay-callback`,
         // Where user returns after payment:
-        result_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://savage1590.github.io'}/thank-you?order_num=${orderNumber}`
+        result_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.kutok-mista.com.ua'}/thank-you?order_num=${orderNumber}`
       };
 
       const dataBase64 = Buffer.from(JSON.stringify(liqpayParams)).toString('base64');
