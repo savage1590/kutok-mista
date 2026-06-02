@@ -41,6 +41,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description: isUa 
         ? "Магазин урбаністичного одягу та 3D-артефактів. Унікальний дизайн, рефлективні елементи та стиль міста." 
         : "Store of urban apparel and 3D artifacts. Unique design, reflective elements, and city style.",
+      images: [
+        {
+          url: "/mainbaner.webp",
+          width: 1200,
+          height: 630,
+          alt: "Kutok Mista Banner",
+        }
+      ],
     },
     twitter: {
       card: "summary_large_image",
@@ -48,6 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description: isUa 
         ? "Магазин урбаністичного одягу та 3D-артефактів." 
         : "Store of urban apparel and 3D artifacts.",
+      images: ["/mainbaner.webp"],
     },
   };
 }
