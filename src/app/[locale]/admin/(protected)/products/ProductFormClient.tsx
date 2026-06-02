@@ -234,6 +234,12 @@ export default function ProductFormClient({ initialProduct, categories, sizeChar
  </div>
  </div>
 
+ <div className="space-y-2 pt-4 border-t border-gray-100">
+ <label className="text-sm font-semibold text-foreground">URL Посилання (Slug)</label>
+ <p className="text-xs text-gray-500 mb-2">Наприклад: <code>chorna-futbolka-oversize</code>. Залиште порожнім, щоб згенерувати автоматично з назви. Використовуйте лише латинські літери, цифри та дефіси.</p>
+ <input type="text" name="slug" defaultValue={initialProduct?.slug || ''} placeholder="chorna-futbolka" className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-brand outline-none"/>
+ </div>
+
  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4 border-t border-gray-100">
  <div className="space-y-2">
  <label className="text-sm font-semibold text-foreground">Артикул (SKU)</label>

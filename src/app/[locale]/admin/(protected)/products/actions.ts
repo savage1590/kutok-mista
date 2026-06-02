@@ -21,7 +21,13 @@ export async function saveProduct(formData: FormData, productId?: string) {
       .replace(/-+$/, '');
   }
   
-  // Base properties
+  const inputSlug = formData.get("slug") as string;
+  let finalSlug: string | undefined = undefined;
+
+  if (inputSlug && inputSlug.trim() !== "") {
+    finalSlug = generateSlug(inputSlug);
+  }
+
   const category_id = formData.get("category_id") as string;
   const productData: any = {
     name_ua: formData.get("name_ua") as string,
@@ -35,6 +41,10 @@ export async function saveProduct(formData: FormData, productId?: string) {
     is_on_demand: formData.get("is_on_demand") === "on",
     properties: {} as any,
   };
+
+  if (finalSlug) {
+    productData.slug = finalSlug;
+  }
 
   if (category_id) {
     productData.category_id = category_id;
@@ -84,9 +94,11 @@ export async function saveProduct(formData: FormData, productId?: string) {
     if (error) throw new Error(error.message);
   } else {
     // Create new
-    const baseSlug = generateSlug(productData.name_en || productData.name_ua || 'product');
-    const randomSuffix = Math.random().toString(36).substring(2, 6);
-    productData.slug = `${baseSlug}-${randomSuffix}`;
+    if (!productData.slug) {
+      const baseSlug = generateSlug(productData.name_en || productData.name_ua || 'product');
+      const randomSuffix = Math.random().toString(36).substring(2, 6);
+      productData.slug = `${baseSlug}-${randomSuffix}`;
+    }
 
     const { data, error } = await supabaseAdmin
       .from("products")
