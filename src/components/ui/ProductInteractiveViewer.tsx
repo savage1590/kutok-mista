@@ -45,6 +45,13 @@ export default function ProductInteractiveViewer({
           </p>
         )}
 
+        <button 
+          onClick={() => { document.getElementById('reviews-section')?.scrollIntoView({ behavior: 'smooth' }) }} 
+          className="text-sm text-brand font-medium hover:underline flex items-center gap-1.5 w-fit mb-6 transition-all"
+        >
+          ⭐ {locale === "ua" ? "Відгуки про товар" : "Product Reviews"}
+        </button>
+
         <div className="flex items-center gap-4 mb-6">
           <p className="text-brand font-semibold text-2xl">
             {product.price} ₴

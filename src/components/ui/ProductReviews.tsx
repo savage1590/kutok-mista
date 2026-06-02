@@ -17,7 +17,7 @@ export default async function ProductReviews({ productId, locale }: { productId:
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   return (
-    <div className="mt-16 pt-12 border-t border-gray-100">
+    <div id="reviews-section" className="mt-16 pt-12 border-t border-gray-100">
       <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">
         {locale === "ua" ? "Відгуки клієнтів" : "Customer Reviews"}
         <span className="text-gray-400 text-lg ml-3 font-normal">({productReviews.length})</span>
