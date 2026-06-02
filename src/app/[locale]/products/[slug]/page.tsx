@@ -1,5 +1,6 @@
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProductById } from "@/lib/api";
+import { getProductBySlug } from "@/lib/api";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import ProductInteractiveViewer from "@/components/ui/ProductInteractiveViewer";
 import ProductGallery from "@/components/ui/ProductGallery";
@@ -7,13 +8,48 @@ import { Link } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const product = await getProductBySlug(slug);
+
+  if (!product) {
+    return {
+      title: 'Товар не знайдено | Kutok Mista',
+    };
+  }
+
+  const name = locale === "ua" ? product.name_ua : product.name_en;
+  const description = locale === "ua" ? product.description_ua : product.description_en;
+  
+  return {
+    title: `${name} | Kutok Mista`,
+    description: description || "Kutok Mista - Urban Aesthetics",
+    openGraph: {
+      title: `${name} | Kutok Mista`,
+      description: description || "Kutok Mista - Urban Aesthetics",
+      url: `https://www.kutok-mista.com.ua/${locale}/products/${slug}`,
+      siteName: 'Kutok Mista',
+      images: product.image_url ? [
+        {
+          url: product.image_url,
+          width: 800,
+          height: 600,
+          alt: name,
+        }
+      ] : [],
+      locale: locale === 'ua' ? 'uk_UA' : 'en_US',
+      type: 'website',
+    },
+  };
+}
+
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ locale: string; id: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { locale, id } = await params;
-  const product = await getProductById(id);
+  const { locale, slug } = await params;
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();

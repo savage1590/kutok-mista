@@ -171,3 +171,43 @@ export async function getProductById(id: string): Promise<Product | null> {
     status_def: statusDef
   };
 }
+
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories(*),
+      product_images (
+        id,
+        image_url,
+        is_primary,
+        color
+      )
+    `)
+    .eq('slug', slug)
+    .single();
+
+  if (error || !data) {
+    console.warn(`Failed to fetch product by slug ${slug} from Supabase. Falling back to ID search.`, error);
+    return getProductById(slug); // Fallback to id search if slug not found
+  }
+
+  const statuses = await getStockStatuses();
+
+  const images = data.product_images as any[];
+  const primaryImage = images?.find(img => img.is_primary)?.image_url 
+    || images?.[0]?.image_url 
+    || undefined;
+
+  const statusDef = statuses.find(s => s.id === data.stock_status)
+    || DEFAULT_STOCK_STATUSES.find(s => s.id === data.stock_status)
+    || DEFAULT_STOCK_STATUSES[0];
+
+  return {
+    ...data,
+    image_url: primaryImage,
+    images: images,
+    status_def: statusDef
+  };
+}

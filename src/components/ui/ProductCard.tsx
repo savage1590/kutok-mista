@@ -78,7 +78,7 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
   return (
     <div className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
       {/* Image Area */}
-      <Link href={`/products/${product.id}`} className="relative aspect-[4/5] bg-gray-50 overflow-hidden block">
+      <Link href={`/products/${product.slug || product.id}`} className="relative aspect-[4/5] bg-gray-50 overflow-hidden block">
         {displayImage ? (
           <AnimatePresence mode="wait">
             <motion.img 
@@ -136,7 +136,7 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
 
       {/* Content Area */}
       <div className="p-5 flex flex-col flex-1">
-        <Link href={`/products/${product.id}`} className="hover:text-brand transition-colors">
+        <Link href={`/products/${product.slug || product.id}`} className="hover:text-brand transition-colors">
           <h3 className="font-bold text-lg text-foreground tracking-tight leading-tight mb-1">
             {name}
           </h3>

@@ -11,6 +11,16 @@ export async function saveProduct(formData: FormData, productId?: string) {
 
   const type = formData.get("type") as "apparel" | "artifact";
   
+  function generateSlug(text: string) {
+    if (!text) return "product";
+    return text.toString().toLowerCase()
+      .replace(/\s+/g, '-') 
+      .replace(/[^\w\-]+/g, '') 
+      .replace(/\-\-+/g, '-') 
+      .replace(/^-+/, '') 
+      .replace(/-+$/, '');
+  }
+  
   // Base properties
   const category_id = formData.get("category_id") as string;
   const productData: any = {
@@ -74,6 +84,10 @@ export async function saveProduct(formData: FormData, productId?: string) {
     if (error) throw new Error(error.message);
   } else {
     // Create new
+    const baseSlug = generateSlug(productData.name_en || productData.name_ua || 'product');
+    const randomSuffix = Math.random().toString(36).substring(2, 6);
+    productData.slug = `${baseSlug}-${randomSuffix}`;
+
     const { data, error } = await supabaseAdmin
       .from("products")
       .insert(productData)

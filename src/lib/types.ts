@@ -27,6 +27,7 @@ export interface StockStatusDef {
 
 export interface Product {
   id: string;
+  slug?: string;
   type: ProductType;
   category_id?: string;
   categories?: Category;
