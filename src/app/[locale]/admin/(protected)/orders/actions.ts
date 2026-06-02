@@ -63,3 +63,39 @@ export async function updateOrderStatus(orderId: string, status: string, payment
   revalidatePath("/[locale]/admin/orders", "page");
   return { success: true };
 }
+
+export async function getFastOrders() {
+  const { data } = await supabaseAdmin
+    .from("settings")
+    .select("value")
+    .eq("key", "fast_orders")
+    .single();
+  
+  return (data?.value as any[]) || [];
+}
+
+export async function updateFastOrderStatus(orderId: string, status: string) {
+  const fastOrders = await getFastOrders();
+  const updated = fastOrders.map(o => o.id === orderId ? { ...o, status } : o);
+  
+  const { error } = await supabaseAdmin
+    .from("settings")
+    .upsert({ key: "fast_orders", value: updated });
+    
+  if (error) return { success: false, error: error.message };
+  revalidatePath("/[locale]/admin/orders", "page");
+  return { success: true };
+}
+
+export async function deleteFastOrder(orderId: string) {
+  const fastOrders = await getFastOrders();
+  const updated = fastOrders.filter(o => o.id !== orderId);
+  
+  const { error } = await supabaseAdmin
+    .from("settings")
+    .upsert({ key: "fast_orders", value: updated });
+    
+  if (error) return { success: false, error: error.message };
+  revalidatePath("/[locale]/admin/orders", "page");
+  return { success: true };
+}

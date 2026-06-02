@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { updateOrderStatus } from "./actions";
-import { Search, ChevronDown, Package } from "lucide-react";
+import { updateOrderStatus, updateFastOrderStatus, deleteFastOrder } from "./actions";
+import { Search, ChevronDown, Package, Zap, Trash2 } from "lucide-react";
 
 type Order = any; // We can type this properly later
 
-export default function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
+export default function OrdersClient({ initialOrders, initialFastOrders }: { initialOrders: Order[], initialFastOrders: any[] }) {
   const [orders, setOrders] = useState(initialOrders);
+  const [fastOrders, setFastOrders] = useState(initialFastOrders);
+  const [activeTab, setActiveTab] = useState<"regular" | "fast">("regular");
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -69,16 +71,66 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
     const matchesStatus = statusFilter === "all" || order.status === statusFilter;
     const searchLower = searchQuery.toLowerCase();
     const matchesSearch = 
-      order.customer_name.toLowerCase().includes(searchLower) ||
-      order.customer_phone.toLowerCase().includes(searchLower) ||
-      order.customer_email.toLowerCase().includes(searchLower) ||
-      order.id.toLowerCase().includes(searchLower);
+      order.customer_name?.toLowerCase().includes(searchLower) ||
+      order.customer_phone?.toLowerCase().includes(searchLower) ||
+      order.customer_email?.toLowerCase().includes(searchLower) ||
+      order.id?.toLowerCase().includes(searchLower);
     
     return matchesStatus && matchesSearch;
   });
 
+  const filteredFastOrders = fastOrders.filter(order => {
+    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = 
+      order.phone?.toLowerCase().includes(searchLower) ||
+      order.id?.toLowerCase().includes(searchLower) ||
+      order.productId?.toLowerCase().includes(searchLower);
+    
+    return matchesStatus && matchesSearch;
+  });
+
+  const handleFastOrderStatus = async (orderId: string, newStatus: string) => {
+    setLoadingId(orderId);
+    const res = await updateFastOrderStatus(orderId, newStatus);
+    if (res.success) {
+      setFastOrders(fastOrders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    } else {
+      alert(res.error);
+    }
+    setLoadingId(null);
+  };
+
+  const handleFastOrderDelete = async (orderId: string) => {
+    if (!confirm("Ви впевнені, що хочете видалити це замовлення?")) return;
+    setLoadingId(orderId);
+    const res = await deleteFastOrder(orderId);
+    if (res.success) {
+      setFastOrders(fastOrders.filter(o => o.id !== orderId));
+    } else {
+      alert(res.error);
+    }
+    setLoadingId(null);
+  };
+
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex gap-4 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab("regular")}
+          className={`pb-4 px-2 text-sm font-bold border-b-2 transition-colors ${activeTab === "regular" ? "border-brand text-brand" : "border-transparent text-gray-500 hover:text-gray-900"}`}
+        >
+          Звичайні ({orders.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("fast")}
+          className={`pb-4 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-1.5 ${activeTab === "fast" ? "border-brand text-brand" : "border-transparent text-gray-500 hover:text-gray-900"}`}
+        >
+          <Zap className="w-4 h-4" />
+          В 1 клік ({fastOrders.length})
+        </button>
+      </div>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-200">
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -109,13 +161,14 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {filteredOrders.length === 0 ? (
-          <div className="text-center py-20 bg-white border border-gray-200 rounded-3xl">
-            <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-gray-900">Замовлень не знайдено</h3>
-            <p className="text-gray-500">За вашими критеріями немає жодного замовлення.</p>
-          </div>
-        ) : (
+        {activeTab === "regular" && (
+          filteredOrders.length === 0 ? (
+            <div className="text-center py-20 bg-white border border-gray-200 rounded-3xl">
+              <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-gray-900">Замовлень не знайдено</h3>
+              <p className="text-gray-500">За вашими критеріями немає жодного звичайного замовлення.</p>
+            </div>
+          ) : (
           filteredOrders.map(order => (
             <div key={order.id} className="bg-white border border-gray-200 rounded-3xl p-6 flex flex-col gap-6 shadow-sm">
               <div className="flex flex-col lg:flex-row justify-between gap-6 pb-6 border-b border-gray-100">
@@ -213,6 +266,72 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
               </div>
             </div>
           ))
+        )}
+
+        {activeTab === "fast" && (
+          filteredFastOrders.length === 0 ? (
+            <div className="text-center py-20 bg-white border border-gray-200 rounded-3xl">
+              <Zap className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-gray-900">Швидких замовлень не знайдено</h3>
+              <p className="text-gray-500">Поки що немає замовлень "В 1 клік".</p>
+            </div>
+          ) : (
+            filteredFastOrders.map(order => (
+              <div key={order.id} className={`bg-white border ${order.status === 'new' ? 'border-brand/30 bg-brand/5' : 'border-gray-200'} rounded-3xl p-6 flex flex-col gap-6 shadow-sm`}>
+                <div className="flex flex-col lg:flex-row justify-between gap-6 pb-6 border-b border-gray-100">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-xl font-bold font-mono tracking-tight">{order.phone}</h3>
+                      <span className="text-sm font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded-md">
+                        #{order.id.slice(0, 8)}
+                      </span>
+                    </div>
+                    
+                    <div className="mt-2 bg-white p-3 rounded-xl border border-gray-100 flex flex-col gap-1">
+                      <div className="text-sm font-medium">ID Товарy: <span className="text-gray-500 font-mono">{order.productId}</span></div>
+                      {order.properties && Object.keys(order.properties).length > 0 && (
+                        <div className="text-sm text-gray-600">
+                          {Object.entries(order.properties).map(([k, v]) => `${k}: ${v}`).join(', ')}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="text-xs text-gray-400 mt-2">
+                      {new Date(order.createdAt).toLocaleString('uk-UA')}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3 min-w-[200px]">
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Статус замовлення</label>
+                      <div className="relative">
+                        <select
+                          value={order.status}
+                          onChange={(e) => handleFastOrderStatus(order.id, e.target.value)}
+                          disabled={loadingId === order.id}
+                          className={`w-full appearance-none border font-semibold py-2 pl-3 pr-8 rounded-xl focus:outline-none cursor-pointer disabled:opacity-50 transition-colors ${statusColors[order.status] || "bg-gray-50 border-gray-200 text-gray-900 focus:border-brand"}`}
+                        >
+                          {statuses.filter(s => s.value !== "all").map(s => (
+                            <option key={s.value} value={s.value} className="bg-white text-gray-900">{s.label}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none opacity-50" />
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => handleFastOrderDelete(order.id)}
+                      disabled={loadingId === order.id}
+                      className="mt-2 flex items-center justify-center gap-2 w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Видалити
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )
         )}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { getOrders } from "./actions";
+import { getOrders, getFastOrders } from "./actions";
 import OrdersClient from "./OrdersClient";
 
 export const metadata = {
@@ -6,7 +6,10 @@ export const metadata = {
 };
 
 export default async function OrdersPage() {
-  const orders = await getOrders();
+  const [orders, fastOrders] = await Promise.all([
+    getOrders(),
+    getFastOrders()
+  ]);
 
   return (
     <main className="flex-1 p-6 lg:p-10">
@@ -15,8 +18,7 @@ export default async function OrdersPage() {
           <h1 className="text-3xl font-black tracking-tight text-gray-900">Замовлення</h1>
           <p className="text-gray-500">Керування замовленнями клієнтів та їх статусами.</p>
         </div>
-        
-        <OrdersClient initialOrders={orders} />
+        <OrdersClient initialOrders={orders} initialFastOrders={fastOrders} />
       </div>
     </main>
   );
