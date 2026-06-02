@@ -28,6 +28,7 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link href="/" className="hover:text-brand transition-colors">{t("home")}</Link>
           <Link href="/products" className="hover:text-brand transition-colors">{t("catalog")}</Link>
+          <Link href="/blog" className="hover:text-brand transition-colors">{t("blog")}</Link>
           <Link href="/about" className="hover:text-brand transition-colors">{t("about")}</Link>
           <Link href="/contact" className="hover:text-brand transition-colors">{t("contact")}</Link>
         </nav>

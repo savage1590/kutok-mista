@@ -88,6 +88,7 @@ export default async function Footer() {
             <nav className="flex flex-col gap-3 text-sm text-gray-700">
               <Link href="/" className="hover:text-brand transition-colors w-fit">{tNav("home")}</Link>
               <Link href="/products" className="hover:text-brand transition-colors w-fit">{tNav("catalog")}</Link>
+              <Link href="/blog" className="hover:text-brand transition-colors w-fit">{tNav("blog")}</Link>
               <Link href="/about" className="hover:text-brand transition-colors w-fit">{tNav("about")}</Link>
               <Link href="/contact" className="hover:text-brand transition-colors w-fit">{tNav("contact")}</Link>
               <Link href="/wishlist" className="hover:text-brand transition-colors w-fit">{tNav("wishlist")}</Link>

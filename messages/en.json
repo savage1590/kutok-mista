@@ -4,7 +4,8 @@
     "catalog": "Catalog",
     "about": "About Us",
     "contact": "Contact",
-    "wishlist": "Wishlist"
+    "wishlist": "Wishlist",
+    "blog": "Blog"
   },
   "Wishlist": {
     "title": "Your Wishlist",
