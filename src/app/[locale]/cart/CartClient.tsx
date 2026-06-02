@@ -27,6 +27,7 @@ export default function CartClient({ locale }: { locale: string }) {
   const [cityRef, setCityRef] = useState("");
   const [branch, setBranch] = useState("");
   const [comment, setComment] = useState("");
+  const [doNotCall, setDoNotCall] = useState(false);
   
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,11 +84,17 @@ export default function CartClient({ locale }: { locale: string }) {
       const fullName = `${lastName} ${firstName} ${middleName}`.trim();
       const fullAddress = `м. ${city}, відділення/поштомат: ${branch}`;
 
+      let finalComment = comment.trim();
+      if (doNotCall) {
+        const doNotCallMsg = locale === 'ua' ? "[Не телефонувати для підтвердження]" : "[Do not call to confirm]";
+        finalComment = finalComment ? `${finalComment}\n${doNotCallMsg}` : doNotCallMsg;
+      }
+
       const orderData = {
         customerName: fullName,
         customerEmail: email,
         customerPhone: phone,
-        customerComment: comment,
+        customerComment: finalComment,
         shippingAddress: fullAddress,
         paymentMethod: paymentMethod,
         items: items.map(item => ({
@@ -304,6 +311,11 @@ export default function CartClient({ locale }: { locale: string }) {
                 </div>
 
                 <textarea placeholder={locale === "ua" ? "Коментар до замовлення (необов'язково)" : "Order comment (optional)"} value={comment} onChange={e => setComment(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors resize-none" />
+                
+                <label className="flex items-center gap-3 cursor-pointer py-1">
+                  <input type="checkbox" checked={doNotCall} onChange={e => setDoNotCall(e.target.checked)} className="w-5 h-5 accent-brand rounded border-gray-300" />
+                  <span className="text-gray-700 font-medium">{locale === "ua" ? "Не телефонувати для підтвердження замовлення" : "Do not call to confirm order"}</span>
+                </label>
                 
                 {step2Error && <p className="text-red-500 text-sm font-medium mt-1">{step2Error}</p>}
                 
