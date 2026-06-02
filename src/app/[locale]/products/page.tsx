@@ -44,9 +44,41 @@ export default async function ProductsPage({
   ]);
 
   const collections = (collectionsData?.data?.value || []) as any[];
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": locale === "ua" ? "Головна" : "Home",
+            "item": `https://www.kutok-mista.com.ua/${locale}`
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": locale === "ua" ? "Каталог" : "Catalog",
+            "item": `https://www.kutok-mista.com.ua/${locale}/products`
+          }
+        ]
+      },
+      {
+        "@type": "ItemList",
+        "itemListElement": products.map((p, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "url": `https://www.kutok-mista.com.ua/${locale}/products/${p.slug}`
+        }))
+      }
+    ]
+  };
   
   return (
     <main className="flex-1 container mx-auto px-4 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Breadcrumbs 
         items={[
           { label: locale === "ua" ? "Каталог" : "Catalog" }

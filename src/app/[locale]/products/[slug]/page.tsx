@@ -87,8 +87,83 @@ export default async function ProductPage({
     productCollections = allCollections.filter(c => collectionIds.includes(c.id));
   }
 
+  const { data: reviewsData } = await supabaseAdmin
+    .from("settings")
+    .select("value")
+    .eq("key", "product_reviews")
+    .single();
+
+  const allReviews = (reviewsData?.value || []) as any[];
+  const productReviews = allReviews.filter(r => r.product_id === product.id && r.status === 'approved');
+  
+  let aggregateRating = undefined;
+  if (productReviews.length > 0) {
+    const sum = productReviews.reduce((acc, r) => acc + r.rating, 0);
+    aggregateRating = {
+      "@type": "AggregateRating",
+      "ratingValue": (sum / productReviews.length).toFixed(1),
+      "reviewCount": productReviews.length
+    };
+  }
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": name,
+        "image": product.image_url,
+        "description": description,
+        "sku": product.sku,
+        "brand": {
+          "@type": "Brand",
+          "name": "Kutok Mista"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": `https://www.kutok-mista.com.ua/${locale}/products/${slug}`,
+          "priceCurrency": "UAH",
+          "price": product.price,
+          "itemCondition": "https://schema.org/NewCondition",
+          "availability": (product.status_def?.allow_purchase ?? true) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+        },
+        ...(aggregateRating ? { aggregateRating } : {})
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": locale === "ua" ? "Головна" : "Home",
+            "item": `https://www.kutok-mista.com.ua/${locale}`
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": locale === "ua" ? "Каталог" : "Catalog",
+            "item": `https://www.kutok-mista.com.ua/${locale}/products`
+          },
+          ...(product.categories ? [{
+            "@type": "ListItem",
+            "position": 3,
+            "name": locale === "ua" ? product.categories.name_ua : product.categories.name_en,
+            "item": `https://www.kutok-mista.com.ua/${locale}/products?category=${product.categories.slug}`
+          }] : []),
+          {
+            "@type": "ListItem",
+            "position": product.categories ? 4 : 3,
+            "name": name,
+            "item": `https://www.kutok-mista.com.ua/${locale}/products/${slug}`
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <main className="flex-1 bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="container mx-auto px-4 py-8">
         
         <Breadcrumbs 

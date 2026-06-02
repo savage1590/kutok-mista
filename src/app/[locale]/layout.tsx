@@ -77,6 +77,42 @@ export default async function RootLayout({
       lang={locale}
       className={`${inter.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://www.kutok-mista.com.ua/#organization",
+                  "name": "Kutok Mista",
+                  "url": "https://www.kutok-mista.com.ua",
+                  "logo": "https://www.kutok-mista.com.ua/logo.png",
+                  "sameAs": [
+                    "https://instagram.com/kutok.mista"
+                  ]
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://www.kutok-mista.com.ua/#website",
+                  "url": `https://www.kutok-mista.com.ua/${locale}`,
+                  "name": "Kutok Mista",
+                  "publisher": {
+                    "@id": "https://www.kutok-mista.com.ua/#organization"
+                  },
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": `https://www.kutok-mista.com.ua/${locale}/products?q={search_term_string}`,
+                    "query-input": "required name=search_term_string"
+                  }
+                }
+              ]
+            })
+          }}
+        />
+      </head>
       <body className={`${inter.className} min-h-full flex flex-col bg-background text-foreground`} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <Header />
