@@ -16,10 +16,41 @@ const inter = Inter({
   subsets: ["latin", "cyrillic"],
 });
 
-export const metadata: Metadata = {
-  title: "Kutok Mista | Urban Aesthetics",
-  description: "Minimalist apparel and 3D-printed artifacts.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isUa = locale === "ua";
+  
+  return {
+    metadataBase: new URL("https://www.kutok-mista.com.ua"),
+    title: {
+      template: "%s | Kutok Mista",
+      default: isUa ? "Kutok Mista | Урбаністична естетика" : "Kutok Mista | Urban Aesthetics",
+    },
+    description: isUa 
+      ? "Магазин урбаністичного одягу та 3D-артефактів. Унікальний дизайн, рефлективні елементи та стиль міста." 
+      : "Store of urban apparel and 3D artifacts. Unique design, reflective elements, and city style.",
+    keywords: isUa 
+      ? ["одяг", "футболки", "урбан", "стрітвір", "Kutok Mista", "3D друк", "сувеніри", "худі", "Харків"]
+      : ["apparel", "t-shirts", "urban", "streetwear", "Kutok Mista", "3D printing", "souvenirs", "hoodies", "Kharkiv"],
+    openGraph: {
+      type: "website",
+      locale: isUa ? "uk_UA" : "en_US",
+      url: `https://www.kutok-mista.com.ua/${locale}`,
+      siteName: "Kutok Mista",
+      title: isUa ? "Kutok Mista | Урбаністична естетика" : "Kutok Mista | Urban Aesthetics",
+      description: isUa 
+        ? "Магазин урбаністичного одягу та 3D-артефактів. Унікальний дизайн, рефлективні елементи та стиль міста." 
+        : "Store of urban apparel and 3D artifacts. Unique design, reflective elements, and city style.",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: isUa ? "Kutok Mista | Урбаністична естетика" : "Kutok Mista | Urban Aesthetics",
+      description: isUa 
+        ? "Магазин урбаністичного одягу та 3D-артефактів." 
+        : "Store of urban apparel and 3D artifacts.",
+    },
+  };
+}
 
 export default async function RootLayout({
   children,

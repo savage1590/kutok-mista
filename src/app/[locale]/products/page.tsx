@@ -3,7 +3,20 @@ import { getProducts, getCategories } from "@/lib/api";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import CatalogFilters from "@/components/catalog/CatalogFilters";
 import CatalogSort from "@/components/catalog/CatalogSort";
+import ProductSort from "@/components/catalog/ProductSort";
+import { Metadata } from "next";
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isUa = locale === "ua";
+  
+  return {
+    title: isUa ? "Каталог" : "Catalog",
+    description: isUa 
+      ? "Перегляньте повний каталог нашого урбаністичного одягу та 3D-артефактів." 
+      : "Browse the full catalog of our urban apparel and 3D artifacts.",
+  };
+}
 export default async function ProductsPage({
   params,
   searchParams,
