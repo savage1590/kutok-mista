@@ -8,8 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartButton() {
   const [mounted, setMounted] = useState(false);
-  const getTotalItems = useCartStore((state) => state.getTotalItems);
-  const total = getTotalItems();
+  const items = useCartStore((state) => state.items);
+  const total = items.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
     setMounted(true);
