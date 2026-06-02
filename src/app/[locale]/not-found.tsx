@@ -16,13 +16,13 @@ export default function NotFound() {
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
         <Link 
           href="/" 
-          className="px-8 py-4 bg-brand text-white rounded-full font-bold shadow-lg hover:bg-brand-light transition-colors text-center"
+          className="px-8 py-4 bg-gray-100 text-foreground rounded-full font-bold hover:bg-gray-200 transition-colors text-center"
         >
           {t("homeBtn")}
         </Link>
         <Link 
           href="/products" 
-          className="px-8 py-4 bg-gray-100 text-foreground rounded-full font-bold hover:bg-gray-200 transition-colors text-center"
+          className="px-8 py-4 bg-brand text-white rounded-full font-bold shadow-lg hover:bg-brand-light transition-colors text-center"
         >
           {t("catalogBtn")}
         </Link>
