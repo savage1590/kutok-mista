@@ -266,6 +266,7 @@ export default function OrdersClient({ initialOrders, initialFastOrders }: { ini
               </div>
             </div>
           ))
+          )
         )}
 
         {activeTab === "fast" && (
