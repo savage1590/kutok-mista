@@ -3,7 +3,6 @@ import { getProducts, getCategories } from "@/lib/api";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import CatalogFilters from "@/components/catalog/CatalogFilters";
 import CatalogSort from "@/components/catalog/CatalogSort";
-import ProductSort from "@/components/catalog/ProductSort";
 import { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
