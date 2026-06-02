@@ -34,29 +34,25 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       : ["apparel", "t-shirts", "urban", "streetwear", "Kutok Mista", "3D printing", "souvenirs", "hoodies", "Kharkiv"],
     openGraph: {
       type: "website",
-      locale: isUa ? "uk_UA" : "en_US",
-      url: `https://www.kutok-mista.com.ua/${locale}`,
+      locale: "uk_UA",
+      url: `https://www.kutok-mista.com.ua`,
       siteName: "Kutok Mista",
-      title: isUa ? "Kutok Mista | Урбаністична естетика" : "Kutok Mista | Urban Aesthetics",
-      description: isUa 
-        ? "Магазин урбаністичного одягу та 3D-артефактів. Унікальний дизайн, рефлективні елементи та стиль міста." 
-        : "Store of urban apparel and 3D artifacts. Unique design, reflective elements, and city style.",
+      title: "Kutok Mista | Урбаністична естетика",
+      description: "Магазин урбаністичного одягу та 3D-артефактів. Унікальний дизайн, рефлективні елементи та стиль міста.",
       images: [
         {
-          url: "/mainbaner.webp",
-          width: 1200,
-          height: 630,
-          alt: "Kutok Mista Banner",
+          url: "https://www.kutok-mista.com.ua/logo.png",
+          width: 800,
+          height: 600,
+          alt: "Kutok Mista Logo",
         }
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: isUa ? "Kutok Mista | Урбаністична естетика" : "Kutok Mista | Urban Aesthetics",
-      description: isUa 
-        ? "Магазин урбаністичного одягу та 3D-артефактів." 
-        : "Store of urban apparel and 3D artifacts.",
-      images: ["/mainbaner.webp"],
+      title: "Kutok Mista | Урбаністична естетика",
+      description: "Магазин урбаністичного одягу та 3D-артефактів.",
+      images: ["https://www.kutok-mista.com.ua/logo.png"],
     },
   };
 }
