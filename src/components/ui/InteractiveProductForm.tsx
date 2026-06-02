@@ -5,8 +5,9 @@ import { Product } from "@/lib/types";
 import { useTranslations, useLocale } from "next-intl";
 import { useCartStore } from "@/lib/store";
 import WishlistButton from "./WishlistButton";
-import { Truck, CreditCard, Info, Ruler } from "lucide-react";
+import { Truck, CreditCard, Info, Ruler, Zap } from "lucide-react";
 import toast from "react-hot-toast";
+import FastOrderModal from "./FastOrderModal";
 
 export default function InteractiveProductForm({ product, sizeChart, onColorChange }: { product: Product; sizeChart?: any; onColorChange?: (color: string) => void }) {
   const t = useTranslations("Product");
@@ -14,6 +15,7 @@ export default function InteractiveProductForm({ product, sizeChart, onColorChan
   const addItem = useCartStore((state) => state.addItem);
   const [selectedProperties, setSelectedProperties] = useState<Record<string, string>>({});
   const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
+  const [isFastOrderOpen, setIsFastOrderOpen] = useState(false);
 
   const propertiesSchema = product.categories?.properties_schema || [];
   const propertyKeys = Object.keys(product.properties || {}).filter(k => 
@@ -78,18 +80,29 @@ export default function InteractiveProductForm({ product, sizeChart, onColorChan
       })}
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-4 mt-4">
-        <button 
-          onClick={() => {
-            addItem(product, 1, selectedProperties);
-            toast.success(locale === "ua" ? "Товар додано в кошик" : "Item added to cart");
-          }}
+      <div className="flex flex-col gap-3 mt-4">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => {
+              addItem(product, 1, selectedProperties);
+              toast.success(locale === "ua" ? "Товар додано в кошик" : "Item added to cart");
+            }}
+            disabled={isAddToCartDisabled}
+            className="flex-1 py-4 px-8 bg-foreground hover:bg-brand text-white rounded-full font-bold text-lg transition-colors disabled:opacity-50 disabled:hover:bg-foreground"
+          >
+            {t("addToCart")}
+          </button>
+          <WishlistButton product={product} showText={false} className="w-14 h-14 bg-gray-100 hover:bg-red-50 text-gray-500 rounded-full" />
+        </div>
+        
+        <button
+          onClick={() => setIsFastOrderOpen(true)}
           disabled={isAddToCartDisabled}
-          className="flex-1 py-4 px-8 bg-foreground hover:bg-brand text-white rounded-full font-bold text-lg transition-colors disabled:opacity-50 disabled:hover:bg-foreground"
+          className="w-full py-4 px-8 bg-brand/10 hover:bg-brand/20 text-brand rounded-full font-bold text-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {t("addToCart")}
+          <Zap className="w-5 h-5 fill-current" />
+          {locale === "ua" ? "Купити в 1 клік" : "1-Click Buy"}
         </button>
-        <WishlistButton product={product} showText={false} className="w-14 h-14 bg-gray-100 hover:bg-red-50 text-gray-500" />
       </div>
 
       {/* General Information Block */}
@@ -160,6 +173,13 @@ export default function InteractiveProductForm({ product, sizeChart, onColorChan
           </div>
         </div>
       )}
+
+      <FastOrderModal 
+        product={product} 
+        selectedProperties={selectedProperties}
+        isOpen={isFastOrderOpen} 
+        onClose={() => setIsFastOrderOpen(false)} 
+      />
     </div>
   );
 }

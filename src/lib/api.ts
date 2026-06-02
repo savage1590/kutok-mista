@@ -9,6 +9,7 @@ export interface ProductFilters {
   max_price?: number;
   in_stock?: boolean;
   sort?: string; // 'price_asc', 'price_desc', 'newest'
+  q?: string; // search query
 }
 
 export async function getCategories() {
@@ -69,6 +70,11 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
 
   if (filters?.max_price !== undefined) {
     query = query.lte('price', filters.max_price);
+  }
+
+  if (filters?.q) {
+    // Search in both UA and EN names
+    query = query.or(`name_ua.ilike.%${filters.q}%,name_en.ilike.%${filters.q}%`);
   }
 
   // We need to fetch statuses earlier if we are filtering by in_stock

@@ -34,6 +34,7 @@ export default async function ProductsPage({
     max_price: resolvedSearchParams.max_price ? parseInt(resolvedSearchParams.max_price, 10) : undefined,
     in_stock: resolvedSearchParams.in_stock === "true",
     sort: resolvedSearchParams.sort,
+    q: resolvedSearchParams.q,
   };
 
   const [products, categories, collectionsData] = await Promise.all([
@@ -54,7 +55,9 @@ export default async function ProductsPage({
 
       <div className="mb-10 text-center">
         <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">
-          {locale === "ua" ? "Наш Каталог" : "Our Catalog"}
+          {resolvedSearchParams.q 
+            ? (locale === "ua" ? `Пошук: "${resolvedSearchParams.q}"` : `Search: "${resolvedSearchParams.q}"`)
+            : (locale === "ua" ? "Наш Каталог" : "Our Catalog")}
         </h1>
         <p className="text-gray-500 max-w-2xl mx-auto">
           {locale === "ua" 

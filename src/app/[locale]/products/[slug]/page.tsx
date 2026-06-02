@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import RelatedProducts from "@/components/ui/RelatedProducts";
+import ProductReviews from "@/components/ui/ProductReviews";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -142,6 +143,8 @@ export default async function ProductPage({
           categorySlug={product.categories?.slug} 
           locale={locale} 
         />
+
+        <ProductReviews productId={product.id} locale={locale} />
       </div>
     </main>
   );

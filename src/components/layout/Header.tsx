@@ -5,6 +5,7 @@ import LanguageSwitcher from "../ui/LanguageSwitcher";
 import CartButton from "../ui/CartButton";
 import WishlistHeaderButton from "../ui/WishlistHeaderButton";
 import MobileMenu from "./MobileMenu";
+import SearchButton from "../ui/SearchButton";
 
 export default function Header() {
   const t = useTranslations("Navigation");
@@ -34,8 +35,9 @@ export default function Header() {
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <LanguageSwitcher />
+          <SearchButton />
           <WishlistHeaderButton />
           <CartButton />
           <MobileMenu />

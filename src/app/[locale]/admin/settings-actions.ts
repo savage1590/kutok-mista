@@ -114,3 +114,17 @@ export async function saveBlogPosts(posts: unknown[]) {
   if (error) return { error: error.message };
   return { success: true };
 }
+
+export async function saveReviews(reviews: unknown[]) {
+  const isAuthorized = await verifyAdminAccess();
+  if (!isAuthorized) {
+    return { error: "Unauthorized" };
+  }
+
+  const { error } = await supabaseAdmin
+    .from("settings")
+    .upsert({ key: "product_reviews", value: reviews });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}
