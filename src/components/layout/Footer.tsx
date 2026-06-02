@@ -80,7 +80,7 @@ export default async function Footer() {
         <div className="w-full h-px bg-gray-200 mb-12"></div>
 
         {/* Bottom Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           
           {/* Information */}
           <div>
@@ -91,6 +91,30 @@ export default async function Footer() {
               <Link href="/about" className="hover:text-brand transition-colors w-fit">{tNav("about")}</Link>
               <Link href="/contact" className="hover:text-brand transition-colors w-fit">{tNav("contact")}</Link>
               <Link href="/wishlist" className="hover:text-brand transition-colors w-fit">{tNav("wishlist")}</Link>
+            </nav>
+          </div>
+
+          {/* SEO Category Links */}
+          <div>
+            <h3 className="text-sm font-semibold tracking-wider uppercase text-gray-500 mb-6">
+              {locale === "ua" ? "Категорії" : "Categories"}
+            </h3>
+            <nav className="flex flex-col gap-3 text-sm text-gray-700">
+              <Link href="/products?category=tshirts" className="hover:text-brand transition-colors w-fit">
+                {locale === "ua" ? "Футболки" : "T-Shirts"}
+              </Link>
+              <Link href="/products?category=hoodies" className="hover:text-brand transition-colors w-fit">
+                {locale === "ua" ? "Худі" : "Hoodies"}
+              </Link>
+              <Link href="/products?category=keychains" className="hover:text-brand transition-colors w-fit">
+                {locale === "ua" ? "Брелоки" : "Keychains"}
+              </Link>
+              <Link href="/products?category=accessories" className="hover:text-brand transition-colors w-fit">
+                {locale === "ua" ? "Аксесуари" : "Accessories"}
+              </Link>
+              <Link href="/products?category=statuettes" className="hover:text-brand transition-colors w-fit">
+                {locale === "ua" ? "Статуетки" : "Statuettes"}
+              </Link>
             </nav>
           </div>
 

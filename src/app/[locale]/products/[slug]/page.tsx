@@ -7,6 +7,8 @@ import ProductGallery from "@/components/ui/ProductGallery";
 import { Link } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import RelatedProducts from "@/components/ui/RelatedProducts";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -88,11 +90,16 @@ export default async function ProductPage({
     <main className="flex-1 bg-white">
       <div className="container mx-auto px-4 py-8">
         
-        {/* Back link */}
-        <Link href="/products" className="inline-flex items-center gap-2 text-gray-500 hover:text-brand transition-colors mb-8 font-medium">
-          <ArrowLeft className="w-4 h-4" />
-          {locale === "ua" ? "Назад до каталогу" : "Back to catalog"}
-        </Link>
+        <Breadcrumbs 
+          items={[
+            { label: locale === "ua" ? "Каталог" : "Catalog", href: "/products" },
+            ...(product.categories ? [{ 
+              label: locale === "ua" ? product.categories.name_ua : product.categories.name_en, 
+              href: `/products?category=${product.categories.slug}` 
+            }] : []),
+            { label: name }
+          ]} 
+        />
 
         <ProductInteractiveViewer 
           product={product}
@@ -109,13 +116,14 @@ export default async function ProductPage({
                 </span>
               )}
               {productCollections.map((col: any) => (
-                <span 
+                <Link 
+                  href={`/products?collection=${col.id}`}
                   key={col.id}
-                  className="text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg"
+                  className="text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
                   style={{ backgroundColor: col.color || '#888' }}
                 >
                   {locale === "ua" ? col.name_ua : col.name_en}
-                </span>
+                </Link>
               ))}
               {product.status_def && product.status_def.show_in_card !== false && (
                 <span 
@@ -127,6 +135,12 @@ export default async function ProductPage({
               )}
             </>
           }
+        />
+
+        <RelatedProducts 
+          currentProductId={product.id} 
+          categorySlug={product.categories?.slug} 
+          locale={locale} 
         />
       </div>
     </main>

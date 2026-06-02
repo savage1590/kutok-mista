@@ -59,7 +59,8 @@
     "deliveryTitle": "Shipping",
     "deliveryText": "We deliver across the country. In-stock items are typically delivered within 1-2 days depending on your region. If an item is made to order or out of stock, delivery may take up to 5-6 days. We value your time, therefore, we strive to fulfill your every order in the shortest possible time.",
     "paymentTitle": "Payment",
-    "paymentMethods": "Cash on delivery • Full payment to account"
+    "paymentMethods": "Cash on Delivery • Full Payment to Account",
+    "relatedProducts": "You might also like"
   },
   "Home": {
     "slide1Title": "Urban Aesthetics in Every Detail",

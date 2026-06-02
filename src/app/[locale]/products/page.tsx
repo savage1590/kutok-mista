@@ -3,6 +3,7 @@ import { getProducts, getCategories } from "@/lib/api";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import CatalogFilters from "@/components/catalog/CatalogFilters";
 import CatalogSort from "@/components/catalog/CatalogSort";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -45,6 +46,12 @@ export default async function ProductsPage({
   
   return (
     <main className="flex-1 container mx-auto px-4 py-12">
+      <Breadcrumbs 
+        items={[
+          { label: locale === "ua" ? "Каталог" : "Catalog" }
+        ]} 
+      />
+
       <div className="mb-10 text-center">
         <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">
           {locale === "ua" ? "Наш Каталог" : "Our Catalog"}
