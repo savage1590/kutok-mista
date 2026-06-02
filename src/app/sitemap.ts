@@ -10,6 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '',
     '/products',
     '/cart',
+    '/blog',
   ]
 
   const sitemapEntries: MetadataRoute.Sitemap = []
@@ -40,6 +41,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           lastModified: product.updated_at ? new Date(product.updated_at) : new Date(),
           changeFrequency: 'weekly',
           priority: 0.9,
+        })
+      }
+    }
+  }
+
+  // Fetch blog posts
+  const { data: blogData } = await supabaseAdmin
+    .from('settings')
+    .select('value')
+    .eq('key', 'blog_posts')
+    .single()
+
+  if (blogData && blogData.value) {
+    const posts = blogData.value as any[]
+    for (const post of posts) {
+      for (const locale of locales) {
+        sitemapEntries.push({
+          url: `${baseUrl}/${locale}/blog/${post.slug}`,
+          lastModified: post.date ? new Date(post.date) : new Date(),
+          changeFrequency: 'monthly',
+          priority: 0.7,
         })
       }
     }
