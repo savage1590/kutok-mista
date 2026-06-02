@@ -109,5 +109,11 @@
     "phonesLabel": "Phones:",
     "messengersLabel": "Messengers:",
     "hoursLabel": "Working Hours:"
+  },
+  "NotFound": {
+    "title": "404 - Page Not Found",
+    "description": "It might have been removed, renamed, or is temporarily unavailable.",
+    "homeBtn": "Return Home",
+    "catalogBtn": "Go to Catalog"
   }
 }
