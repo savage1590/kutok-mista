@@ -226,19 +226,52 @@ export default function CartClient({ locale }: { locale: string }) {
                 <input required placeholder={`${t('lastName')} *`} value={lastName} onChange={e => {setLastName(e.target.value); setStep1Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step1Error && !lastName.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
                 <input required placeholder={`${t('firstName')} *`} value={firstName} onChange={e => {setFirstName(e.target.value); setStep1Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step1Error && !firstName.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
                 <input placeholder={t('middleName')} value={middleName} onChange={e => setMiddleName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors" />
-                <input type="email" required placeholder={`${t('email')} *`} value={email} onChange={e => {setEmail(e.target.value); setStep1Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step1Error && !email.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
-                <input type="tel" required placeholder={`${t('phone')} *`} value={phone} onChange={e => {setPhone(e.target.value); setStep1Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step1Error && !phone.trim() ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
+                <input type="email" required placeholder={`${t('email')} *`} value={email} onChange={e => {setEmail(e.target.value); setStep1Error("");}} className={`w-full px-4 py-3 rounded-xl border ${step1Error && (step1Error.includes('email') || step1Error.includes('формат') || !email.trim()) ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
+                <input type="tel" required placeholder={`${t('phone')} *`} value={phone} onChange={e => {
+                  let val = e.target.value.replace(/\D/g, "");
+                  if (!val) {
+                    setPhone("");
+                  } else {
+                    if (val.startsWith("0")) val = "38" + val;
+                    else if (val.length > 0 && !val.startsWith("38")) val = "38" + val;
+                    
+                    let formatted = "+";
+                    if (val.length > 0) formatted += val.substring(0, 3);
+                    if (val.length > 3) formatted += " (" + val.substring(3, 5);
+                    if (val.length > 5) formatted += ") " + val.substring(5, 8);
+                    if (val.length > 8) formatted += "-" + val.substring(8, 10);
+                    if (val.length > 10) formatted += "-" + val.substring(10, 12);
+                    
+                    setPhone(formatted);
+                  }
+                  setStep1Error("");
+                }} className={`w-full px-4 py-3 rounded-xl border ${step1Error && (step1Error.includes('телефон') || step1Error.includes('phone') || !phone.trim()) ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:border-brand outline-none transition-colors`} />
                 
                 {step1Error && <p className="text-red-500 text-sm font-medium mt-1">{step1Error}</p>}
                 
                 <button type="button" onClick={() => { 
-                  if(lastName.trim() && firstName.trim() && email.trim() && phone.trim()) {
-                    setStep1Error("");
-                    setActiveStep(2);
-                  } else {
+                  if (!lastName.trim() || !firstName.trim() || !email.trim() || !phone.trim()) {
                     setStep1Error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля з зірочкою (*)" : "Please fill in all required fields with (*)");
                     toast.error(locale === 'ua' ? "Будь ласка, заповніть всі обов'язкові поля" : "Please fill in all required fields");
+                    return;
                   }
+                  
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  if (!emailRegex.test(email)) {
+                    setStep1Error(locale === 'ua' ? "Некоректний формат email" : "Invalid email format");
+                    toast.error(locale === 'ua' ? "Некоректний формат email" : "Invalid email format");
+                    return;
+                  }
+
+                  const phoneDigits = phone.replace(/\D/g, '');
+                  if (phoneDigits.length < 12) {
+                    setStep1Error(locale === 'ua' ? "Введіть повний номер телефону (наприклад: +380 (50) 123-45-67)" : "Enter a valid phone number");
+                    toast.error(locale === 'ua' ? "Некоректний номер телефону" : "Invalid phone number");
+                    return;
+                  }
+
+                  setStep1Error("");
+                  setActiveStep(2);
                 }} className="w-full py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold mt-2 transition-colors">
                   {t('next')}
                 </button>
