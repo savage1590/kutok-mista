@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
+import Image from "next/image";
 
 export default function HomeCategories({ categories = [], locale = "uk" }: { categories?: any[], locale?: string }) {
   const t = useTranslations("Home");
@@ -39,10 +40,15 @@ export default function HomeCategories({ categories = [], locale = "uk" }: { cat
         <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {displayCategories.map((cat) => (
             <Link key={cat.id} href={cat.link || "/products"} className="group relative h-[400px] rounded-3xl overflow-hidden block">
-              <div 
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                style={{ backgroundImage: `url('${cat.image}')` }}
-              />
+              <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
+                <Image
+                  src={cat.image}
+                  alt={locale === "en" ? (cat.title_en || cat.title_ua) : (cat.title_ua || cat.title_en) || "Category"}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+              </div>
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-500" />
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
                 <h3 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 drop-shadow-md text-center px-4">

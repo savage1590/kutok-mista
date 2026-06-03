@@ -10,6 +10,7 @@ import { useCartStore } from "@/lib/store";
 import toast from "react-hot-toast";
 import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface ProductCardProps {
   product: Product;
@@ -81,16 +82,22 @@ export default function ProductCard({ product, locale, collections = [] }: Produ
       <Link href={`/products/${product.slug || product.id}`} className="relative aspect-[4/5] bg-gray-50 overflow-hidden block">
         {displayImage ? (
           <AnimatePresence mode="wait">
-            <motion.img 
+            <motion.div 
               key={displayImage}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              src={displayImage} 
-              alt={name} 
-              className={`${product.properties?.image_fit === 'contain' ? 'object-contain p-4' : 'object-cover'} w-full h-full group-hover:scale-105 transition-transform duration-500`}
-            />
+              className="absolute inset-0 w-full h-full"
+            >
+              <Image 
+                src={displayImage} 
+                alt={name || "Product image"} 
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                className={`${product.properties?.image_fit === 'contain' ? 'object-contain p-4' : 'object-cover'} w-full h-full group-hover:scale-105 transition-transform duration-500`}
+              />
+            </motion.div>
           </AnimatePresence>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">

@@ -4,6 +4,7 @@ import { useLocale } from "next-intl";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { Link } from "@/i18n/routing";
 type Banner = {
   id: string;
@@ -42,12 +43,17 @@ export default function HeroCarousel({ banners }: { banners: Banner[] }) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.5, ease: "easeInOut" }}
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: `url('${slide.image}')`,
-            backgroundColor: '#1a1a1a' 
-          }}
-        />
+          className="absolute inset-0 z-0 bg-[#1a1a1a]"
+        >
+          <Image
+            src={slide.image}
+            alt={locale === 'en' ? slide.title_en : slide.title_ua || "Banner"}
+            fill
+            priority={true}
+            className="object-cover"
+            sizes="100vw"
+          />
+        </motion.div>
       </AnimatePresence>
       
       {/* Overlay: Darkening gradient for contrast */}
