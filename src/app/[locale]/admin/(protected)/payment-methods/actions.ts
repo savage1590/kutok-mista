@@ -1,6 +1,6 @@
 "use server";
 
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { revalidatePath } from "next/cache";
 import { verifyAdminAccess } from "../../actions";
 
@@ -14,10 +14,9 @@ export async function savePaymentMethods(formData: FormData) {
 
     const methods = JSON.parse(methodsJson);
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("settings")
-      .update({ value: methods })
-      .eq("key", "payment_methods");
+      .upsert({ key: "payment_methods", value: methods });
 
     if (error) throw error;
 
