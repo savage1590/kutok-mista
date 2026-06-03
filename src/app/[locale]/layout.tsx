@@ -6,6 +6,7 @@ import { routing } from "@/i18n/routing";
 import { Toaster } from "react-hot-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import CookieBanner from "@/components/ui/CookieBanner";
 import { Analytics } from "@vercel/analytics/react";
 import "../globals.css";
 
@@ -120,6 +121,7 @@ export default async function RootLayout({
             {children}
           </div>
           <Footer />
+          <CookieBanner />
           <Toaster 
             position="bottom-right" 
             toastOptions={{
