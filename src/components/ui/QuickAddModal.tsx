@@ -7,6 +7,7 @@ import { useCartStore } from "@/lib/store";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 
 interface QuickAddModalProps {
   product: Product | null;
@@ -19,11 +20,16 @@ export default function QuickAddModal({ product, isOpen, onClose, locale }: Quic
   const t = useTranslations("Product");
   const addItem = useCartStore((state) => state.addItem);
   const [selectedProperties, setSelectedProperties] = useState<Record<string, string>>({});
+  const [mounted, setMounted] = useState(false);
 
   // Reset state when product changes
   useEffect(() => {
     setSelectedProperties({});
   }, [product]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!product) return null;
 
@@ -50,7 +56,9 @@ export default function QuickAddModal({ product, isOpen, onClose, locale }: Quic
     onClose();
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -137,6 +145,7 @@ export default function QuickAddModal({ product, isOpen, onClose, locale }: Quic
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
