@@ -1,0 +1,30 @@
+"use server";
+
+import { supabase } from "@/lib/supabase";
+import { revalidatePath } from "next/cache";
+import { verifyAdminAccess } from "../../actions";
+
+export async function savePaymentMethods(formData: FormData) {
+  try {
+    const isAuthorized = await verifyAdminAccess();
+    if (!isAuthorized) throw new Error("Unauthorized");
+
+    const methodsJson = formData.get("methods") as string;
+    if (!methodsJson) throw new Error("No data provided");
+
+    const methods = JSON.parse(methodsJson);
+
+    const { error } = await supabase
+      .from("settings")
+      .update({ value: methods })
+      .eq("key", "payment_methods");
+
+    if (error) throw error;
+
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to save payment methods:", error);
+    return { success: false, error: error.message };
+  }
+}

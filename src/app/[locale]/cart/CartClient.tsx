@@ -10,8 +10,9 @@ import toast from "react-hot-toast";
 import { NovaPoshtaCitySelect } from "@/components/checkout/NovaPoshtaCitySelect";
 import { NovaPoshtaWarehouseSelect } from "@/components/checkout/NovaPoshtaWarehouseSelect";
 
-export default function CartClient({ locale }: { locale: string }) {
+export default function CartClient({ locale, paymentMethods = [] }: { locale: string, paymentMethods?: any[] }) {
   const t = useTranslations("Cart");
+  const activeMethods = paymentMethods.filter(m => m.isActive);
   const [mounted, setMounted] = useState(false);
   const { items, removeItem, updateQuantity, getSubtotal, clearCart } = useCartStore();
   
@@ -29,7 +30,7 @@ export default function CartClient({ locale }: { locale: string }) {
   const [comment, setComment] = useState("");
   const [doNotCall, setDoNotCall] = useState(false);
   
-  const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
+  const [paymentMethod, setPaymentMethod] = useState(activeMethods.length > 0 ? activeMethods[0].id : "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
@@ -114,7 +115,8 @@ export default function CartClient({ locale }: { locale: string }) {
       clearCart();
       
       // 4. Handle LiqPay Redirect
-      if (result.liqpayData) {
+      const selectedMethod = paymentMethods.find(m => m.id === paymentMethod);
+      if (selectedMethod?.type === 'system' && paymentMethod === 'liqpay' && result.liqpayData) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = 'https://www.liqpay.ua/api/3/checkout';
@@ -137,7 +139,7 @@ export default function CartClient({ locale }: { locale: string }) {
         return; // wait for redirect
       }
 
-      // 5. Normal redirect for cash_on_delivery or full_payment
+      // 5. Normal redirect for custom methods or other system methods
       router.push(`/thank-you?order_num=${result.orderNumber}`);
       
     } catch (error) {
@@ -392,30 +394,23 @@ export default function CartClient({ locale }: { locale: string }) {
             {activeStep === 3 && (
               <div className="p-4 flex flex-col gap-3 border-t border-gray-100">
                 
-                {/* Hidden integrations for future use */}
-                {/* 
-                <label className="hidden items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                  <input type="radio" name="payment" value="monopay" checked={paymentMethod === 'monopay'} onChange={e => setPaymentMethod(e.target.value)} className="accent-brand" />
-                  <span>MonoPay</span>
-                </label>
-                */}
+                {activeMethods.map(method => (
+                  <label key={method.id} className="flex items-start gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input type="radio" name="payment" value={method.id} checked={paymentMethod === method.id} onChange={e => setPaymentMethod(e.target.value)} className="accent-brand mt-1" />
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-foreground">{locale === 'ua' ? method.name_ua : method.name_en}</span>
+                      {(locale === 'ua' ? method.description_ua : method.description_en) && (
+                        <span className="text-xs text-gray-500 mt-1 whitespace-pre-wrap">{locale === 'ua' ? method.description_ua : method.description_en}</span>
+                      )}
+                    </div>
+                  </label>
+                ))}
                 
-                <label className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                  <input type="radio" name="payment" value="liqpay" checked={paymentMethod === 'liqpay'} onChange={e => setPaymentMethod(e.target.value)} className="accent-brand" />
-                  <span className="font-semibold text-foreground">Онлайн-оплата (LiqPay)</span>
-                </label>
-
-                <label className="flex items-start gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                  <input type="radio" name="payment" value="cash_on_delivery" checked={paymentMethod === 'cash_on_delivery'} onChange={e => setPaymentMethod(e.target.value)} className="accent-brand mt-1" />
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-foreground">{t('cashOnDelivery')}</span>
-                    <span className="text-xs text-gray-500 mt-1">{t('cashCommission')}</span>
+                {activeMethods.length === 0 && (
+                  <div className="text-sm text-red-500 p-3 bg-red-50 rounded-xl">
+                    {locale === 'ua' ? "Немає доступних способів оплати" : "No payment methods available"}
                   </div>
-                </label>
-                <label className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                  <input type="radio" name="payment" value="full_payment" checked={paymentMethod === 'full_payment'} onChange={e => setPaymentMethod(e.target.value)} className="accent-brand" />
-                  <span className="font-semibold text-foreground">{t('fullPayment')}</span>
-                </label>
+                )}
 
                 <button 
                   type="submit" disabled={isSubmitting}

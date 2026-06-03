@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link, usePathname } from "@/i18n/routing";
-import { LogOut, Package, Tag, ShoppingBag, Image, Star, Phone, Menu, X, LayoutGrid, Ruler, Gem, BarChart } from "lucide-react";
+import { LogOut, Package, Tag, ShoppingBag, Image, Star, Phone, Menu, X, LayoutGrid, Ruler, Gem, BarChart, CreditCard } from "lucide-react";
 import { useLocale } from "next-intl";
 import { logoutAdmin } from "@/app/[locale]/admin/actions";
 
@@ -23,6 +23,7 @@ export default function AdminSidebar() {
     { href: "/admin/size-charts", icon: <Ruler className="w-5 h-5" />, label: "Розмірні сітки" },
     { href: "/admin/collections", icon: <Gem className="w-5 h-5" />, label: "Колекції" },
     { href: "/admin/stock-statuses", icon: <Tag className="w-5 h-5" />, label: "Статуси наявності" },
+    { href: "/admin/payment-methods", icon: <CreditCard className="w-5 h-5" />, label: "Способи оплати" },
     { href: "/admin/contacts", icon: <Phone className="w-5 h-5" />, label: "Контакти" },
   ];
 
