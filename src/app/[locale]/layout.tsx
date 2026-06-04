@@ -114,20 +114,6 @@ export default async function RootLayout({
             })
           }}
         />
-        
-        {/* Google Analytics */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-BV9D2QK1E0"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-BV9D2QK1E0');
-          `}
-        </Script>
       </head>
       <body className={`${inter.className} min-h-full flex flex-col bg-background text-foreground`} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
@@ -150,6 +136,20 @@ export default async function RootLayout({
           />
         </NextIntlClientProvider>
         <Analytics />
+        
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-BV9D2QK1E0"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-BV9D2QK1E0');
+          `}
+        </Script>
       </body>
     </html>
   );
