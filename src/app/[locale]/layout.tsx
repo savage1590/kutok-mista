@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CookieBanner from "@/components/ui/CookieBanner";
+import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
 import "../globals.css";
@@ -123,6 +124,7 @@ export default async function RootLayout({
           </div>
           <Footer />
           <CookieBanner />
+          <ScrollToTop />
           <Toaster 
             position="bottom-right" 
             toastOptions={{
@@ -138,6 +140,7 @@ export default async function RootLayout({
         <Analytics />
         
         {/* Google Analytics / Ads */}
+
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-18214434789"
           strategy="afterInteractive"
