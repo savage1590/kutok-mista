@@ -17,6 +17,14 @@ export default async function Footer() {
 
   const contacts = data?.value || {};
 
+  const { data: legalData } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "legal_pages")
+    .single();
+
+  const legalPages = (legalData?.value || []) as any[];
+
   return (
     <footer className="bg-gray-50 border-t border-gray-200 text-foreground mt-auto font-sans">
       <div className="container mx-auto px-4 py-12">
@@ -80,7 +88,7 @@ export default async function Footer() {
         <div className="w-full h-px bg-gray-200 mb-12"></div>
 
         {/* Bottom Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           
           {/* Information */}
           <div>
@@ -116,6 +124,20 @@ export default async function Footer() {
               <Link href="/products?category=statuettes" className="hover:text-brand transition-colors w-fit">
                 {locale === "ua" ? "Статуетки" : "Statuettes"}
               </Link>
+            </nav>
+          </div>
+
+          {/* Legal Pages / Покупцю */}
+          <div>
+            <h3 className="text-sm font-semibold tracking-wider uppercase text-gray-500 mb-6">
+              {locale === "ua" ? "Покупцю" : "For Buyer"}
+            </h3>
+            <nav className="flex flex-col gap-3 text-sm text-gray-700">
+              {legalPages.map((page) => (
+                <Link key={page.slug} href={`/legal/${page.slug}`} className="hover:text-brand transition-colors w-fit">
+                  {locale === "ua" ? page.title_ua : page.title_en}
+                </Link>
+              ))}
             </nav>
           </div>
 
