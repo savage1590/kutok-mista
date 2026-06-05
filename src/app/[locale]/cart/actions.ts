@@ -1,7 +1,11 @@
 "use server";
 
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { Resend } from "resend";
+import * as React from "react";
+import OrderConfirmationEmail from "@/components/emails/OrderConfirmationEmail";
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 export interface OrderData {
   customerName: string;
   customerEmail: string;
@@ -24,11 +28,11 @@ export async function processOrder(orderData: OrderData) {
       return { success: false, error: "Кошик порожній" };
     }
 
-    // 1. Fetch real prices for all products
+    // 1. Fetch real prices and names for all products
     const productIds = items.map(item => item.productId);
     const { data: products, error: productsError } = await supabaseAdmin
       .from('products')
-      .select('id, price')
+      .select('id, price, name_ua')
       .in('id', productIds);
 
     if (productsError) {
@@ -36,15 +40,26 @@ export async function processOrder(orderData: OrderData) {
       return { success: false, error: "Помилка при перевірці товарів" };
     }
 
-    // Create a price map for quick lookup
+    // Create maps for quick lookup
     const priceMap = new Map(products?.map(p => [p.id, p.price]) || []);
+    const nameMap = new Map(products?.map(p => [p.id, p.name_ua]) || []);
 
     // 2. Calculate the secure total amount
     let totalAmount = 0;
+    const emailItems: any[] = [];
+
     const orderItemsToInsert = items.map(item => {
       const price = priceMap.get(item.productId) || 0;
+      const name = nameMap.get(item.productId) || 'Товар';
+      
       totalAmount += price * item.quantity;
       
+      emailItems.push({
+        name: name,
+        quantity: item.quantity,
+        price: price
+      });
+
       return {
         product_id: item.productId,
         quantity: item.quantity,
@@ -130,7 +145,27 @@ export async function processOrder(orderData: OrderData) {
       console.error("Failed to send telegram notification", err);
     }
 
-    // 6. Generate LiqPay Payload if needed
+    // 6. Send Email Notification
+    try {
+      await resend.emails.send({
+        from: 'Kutok Mista <info@kutok-mista.com.ua>',
+        to: [customerEmail], // Send to customer
+        bcc: ['info@kutok-mista.com.ua'], // Send copy to admin
+        subject: `Дякуємо за замовлення #${orderNumber} | Kutok Mista`,
+        react: OrderConfirmationEmail({
+          orderNumber: orderNumber,
+          customerName: customerName,
+          totalAmount: totalAmount,
+          shippingAddress: shippingAddress,
+          paymentMethod: dbPaymentMethod,
+          items: emailItems,
+        }) as React.ReactElement,
+      });
+    } catch (err) {
+      console.error("Failed to send email notification", err);
+    }
+
+    // 7. Generate LiqPay Payload if needed
     if (paymentMethod === 'liqpay') {
       const crypto = require('crypto');
       const publicKey = process.env.LIQPAY_PUBLIC_KEY || '';
