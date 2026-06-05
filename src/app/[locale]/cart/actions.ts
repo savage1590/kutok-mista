@@ -147,7 +147,7 @@ export async function processOrder(orderData: OrderData) {
 
     // 6. Send Email Notification
     try {
-      await resend.emails.send({
+      const emailResponse = await resend.emails.send({
         from: 'Kutok Mista <info@kutok-mista.com.ua>',
         to: [customerEmail], // Send to customer
         bcc: ['info@kutok-mista.com.ua'], // Send copy to admin
@@ -161,8 +161,14 @@ export async function processOrder(orderData: OrderData) {
           items: emailItems,
         }) as React.ReactElement,
       });
+      
+      console.log('=== RESEND RESPONSE ===', JSON.stringify(emailResponse, null, 2));
+      
+      if (emailResponse.error) {
+        console.error('Resend returned an error:', emailResponse.error);
+      }
     } catch (err) {
-      console.error("Failed to send email notification", err);
+      console.error("Failed to send email notification exception:", err);
     }
 
     // 7. Generate LiqPay Payload if needed
