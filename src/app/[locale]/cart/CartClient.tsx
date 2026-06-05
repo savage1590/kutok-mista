@@ -412,9 +412,21 @@ export default function CartClient({ locale, paymentMethods = [] }: { locale: st
                   </div>
                 )}
 
+                <p className="text-[11px] text-gray-500 text-center mt-6 px-2 leading-relaxed">
+                  {locale === 'ua' ? (
+                    <>
+                      Натискаючи кнопку &quot;Оформити замовлення&quot;, Ви погоджуєтесь з <Link href="/legal/offer" target="_blank" className="underline hover:text-gray-800">Публічним договіром (Оферта)</Link> та <Link href="/legal/terms" target="_blank" className="underline hover:text-gray-800">Угодою користувача</Link>, в тому числі <Link href="/legal/delivery" target="_blank" className="underline hover:text-gray-800">доставки, оплати</Link>, <Link href="/legal/returns" target="_blank" className="underline hover:text-gray-800">обміну</Link> та <Link href="/legal/privacy" target="_blank" className="underline hover:text-gray-800">політики конфіденційності</Link>.
+                    </>
+                  ) : (
+                    <>
+                      By clicking &quot;Place Order&quot;, you agree to the <Link href="/legal/offer" target="_blank" className="underline hover:text-gray-800">Public Offer</Link> and <Link href="/legal/terms" target="_blank" className="underline hover:text-gray-800">Terms of Use</Link>, including <Link href="/legal/delivery" target="_blank" className="underline hover:text-gray-800">delivery, payment</Link>, <Link href="/legal/returns" target="_blank" className="underline hover:text-gray-800">returns</Link> and <Link href="/legal/privacy" target="_blank" className="underline hover:text-gray-800">privacy policy</Link>.
+                    </>
+                  )}
+                </p>
+
                 <button 
                   type="submit" disabled={isSubmitting}
-                  className="mt-4 w-full py-4 bg-brand text-white rounded-xl font-bold text-lg hover:bg-brand-light transition-all disabled:opacity-70 flex justify-center items-center shadow-lg shadow-brand/20"
+                  className="mt-2 w-full py-4 bg-brand text-white rounded-xl font-bold text-lg hover:bg-brand-light transition-all disabled:opacity-70 flex justify-center items-center shadow-lg shadow-brand/20"
                 >
                   {isSubmitting ? t('processing') : t('placeOrder')}
                 </button>
