@@ -46,7 +46,7 @@ export const OrderConfirmationEmail = ({
         <Container style={container}>
           <Section style={headerSection}>
             <Img
-              src={`${baseUrl}/logo-black.svg`} // Or whatever the logo filename is. I will check the public folder later.
+              src={`${baseUrl}/logo-horizontal.svg`}
               width="150"
               height="auto"
               alt="Kutok Mista"
