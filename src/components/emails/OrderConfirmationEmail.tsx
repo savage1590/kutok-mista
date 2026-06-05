@@ -58,7 +58,7 @@ export const OrderConfirmationEmail = ({
           
           <Text style={paragraph}>
             Ми успішно отримали ваше замовлення <strong>#{orderNumber}</strong>. 
-            Найближчим часом ми почнемо його комплектувати.
+            Найближчим часом ми зв'яжемося з вами для підтвердження замовлення та почнемо його комплектувати.
           </Text>
 
           <Section style={detailsSection}>
@@ -104,7 +104,15 @@ export const OrderConfirmationEmail = ({
 
           <Text style={footerText}>
             Якщо у вас виникли питання, ви можете відповісти на цей лист або зв'язатися з нашою підтримкою.
-            <br />
+          </Text>
+          
+          <Section style={tgButtonSection}>
+            <Button style={tgButton} href="https://t.me/kutokmista_bot">
+              Зв'язатися в Telegram
+            </Button>
+          </Section>
+
+          <Text style={footerText}>
             З повагою, команда Kutok Mista
           </Text>
         </Container>
@@ -240,6 +248,23 @@ const buttonSection = {
 
 const button = {
   backgroundColor: '#000000',
+  borderRadius: '8px',
+  color: '#fff',
+  fontSize: '15px',
+  fontWeight: '600',
+  textDecoration: 'none',
+  textAlign: 'center' as const,
+  display: 'inline-block',
+  padding: '14px 28px',
+};
+
+const tgButtonSection = {
+  padding: '0 40px 24px',
+  textAlign: 'center' as const,
+};
+
+const tgButton = {
+  backgroundColor: '#2AABEE',
   borderRadius: '8px',
   color: '#fff',
   fontSize: '15px',
