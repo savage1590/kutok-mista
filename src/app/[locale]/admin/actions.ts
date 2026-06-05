@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 const ADMIN_COOKIE_NAME = "kutok_admin_session";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 1 week
@@ -50,4 +52,21 @@ export async function verifyAdminAccess() {
 
   const expectedToken = Buffer.from(correctPassword).toString('base64');
   return sessionToken === expectedToken;
+}
+
+export async function updateSetting(key: string, value: any) {
+  const isAuthorized = await verifyAdminAccess();
+  if (!isAuthorized) {
+    throw new Error("Unauthorized");
+  }
+
+  const { error } = await supabaseAdmin
+    .from("settings")
+    .upsert({ key, value });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/", "layout");
 }
