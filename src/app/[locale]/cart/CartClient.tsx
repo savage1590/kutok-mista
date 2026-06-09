@@ -33,6 +33,12 @@ export default function CartClient({ locale, paymentMethods = [] }: { locale: st
   const [paymentMethod, setPaymentMethod] = useState(activeMethods.length > 0 ? activeMethods[0].id : "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Promo Code State
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<{code: string, discount_type: string, discount_value: number} | null>(null);
+  const [isCheckingPromo, setIsCheckingPromo] = useState(false);
+  const [promoMessage, setPromoMessage] = useState({ type: '', text: '' });
+
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
   const [step1Error, setStep1Error] = useState("");
   const [step2Error, setStep2Error] = useState("");
@@ -59,6 +65,46 @@ export default function CartClient({ locale, paymentMethods = [] }: { locale: st
   }
 
   const subtotal = getSubtotal();
+
+  let discountAmount = 0;
+  if (appliedPromo) {
+    if (appliedPromo.discount_type === 'percentage') {
+      discountAmount = Math.round(subtotal * (appliedPromo.discount_value / 100));
+    } else {
+      discountAmount = Number(appliedPromo.discount_value);
+    }
+  }
+  
+  // Discount can't be more than subtotal
+  discountAmount = Math.min(discountAmount, subtotal);
+  const totalAmount = subtotal - discountAmount;
+
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setIsCheckingPromo(true);
+    setPromoMessage({ type: '', text: '' });
+    
+    try {
+      const res = await fetch('/api/promo/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoInput })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        setAppliedPromo(data.promo);
+        setPromoMessage({ type: 'success', text: locale === 'ua' ? 'Промокод застосовано!' : 'Promo code applied!' });
+        setPromoInput('');
+      } else {
+        setPromoMessage({ type: 'error', text: data.error || (locale === 'ua' ? 'Помилка' : 'Error') });
+      }
+    } catch (err) {
+      setPromoMessage({ type: 'error', text: locale === 'ua' ? 'Помилка з\'єднання' : 'Connection error' });
+    } finally {
+      setIsCheckingPromo(false);
+    }
+  };
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,6 +144,7 @@ export default function CartClient({ locale, paymentMethods = [] }: { locale: st
         customerComment: finalComment,
         shippingAddress: fullAddress,
         paymentMethod: paymentMethod,
+        promoCode: appliedPromo?.code,
         items: items.map(item => ({
           productId: item.product.id,
           quantity: item.quantity,
@@ -105,7 +152,7 @@ export default function CartClient({ locale, paymentMethods = [] }: { locale: st
         }))
       };
 
-      const result = await processOrder(orderData);
+      const result = await processOrder(orderData as any);
 
       if (!result.success) {
         throw new Error(result.error);
@@ -204,9 +251,69 @@ export default function CartClient({ locale, paymentMethods = [] }: { locale: st
       <div className="bg-gray-50 p-8 rounded-3xl h-fit sticky top-24">
         <h2 className="text-2xl font-bold mb-6">{t('subtotal')}</h2>
         
-        <div className="flex justify-between items-center mb-6 text-lg">
-          <span className="text-gray-600">{t('total')}:</span>
-          <span className="font-bold text-2xl">{subtotal} ₴</span>
+        {/* Promo Code Input */}
+        <div className="mb-6">
+          {!appliedPromo ? (
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder={locale === 'ua' ? "Ввести промокод" : "Enter promo code"} 
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                  className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none transition-colors"
+                />
+                <button 
+                  type="button"
+                  onClick={handleApplyPromo}
+                  disabled={isCheckingPromo || !promoInput.trim()}
+                  className="px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-colors disabled:opacity-50"
+                >
+                  {isCheckingPromo ? "..." : (locale === 'ua' ? "Застосувати" : "Apply")}
+                </button>
+              </div>
+              {promoMessage.text && (
+                <p className={`text-sm font-medium ${promoMessage.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
+                  {promoMessage.text}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-3 border border-green-200 bg-green-50 rounded-xl">
+              <div>
+                <span className="text-sm text-green-700 font-medium">Промокод застосовано:</span>
+                <p className="font-bold text-green-800">{appliedPromo.code}</p>
+              </div>
+              <button 
+                onClick={() => {
+                  setAppliedPromo(null);
+                  setPromoMessage({ type: '', text: '' });
+                }}
+                className="text-gray-400 hover:text-red-500"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-3 mb-6 pb-6 border-b border-gray-200">
+          <div className="flex justify-between items-center text-lg">
+            <span className="text-gray-600">{locale === 'ua' ? 'Разом:' : 'Subtotal:'}</span>
+            <span className="font-semibold">{subtotal} ₴</span>
+          </div>
+          
+          {appliedPromo && (
+            <div className="flex justify-between items-center text-lg text-green-600">
+              <span>{locale === 'ua' ? 'Знижка:' : 'Discount:'}</span>
+              <span className="font-bold">-{discountAmount} ₴</span>
+            </div>
+          )}
+          
+          <div className="flex justify-between items-center text-xl mt-2 pt-2 border-t border-gray-100">
+            <span className="font-bold">{t('total')}:</span>
+            <span className="font-bold text-2xl">{totalAmount} ₴</span>
+          </div>
         </div>
 
         <form onSubmit={handleCheckout} className="flex flex-col gap-4">

@@ -19,6 +19,7 @@ export default function AdminSidebar() {
     { href: "/admin/featured", icon: <Star className="w-5 h-5" />, label: "Гол. Хіти продажу" },
     { href: "/admin/home-categories", icon: <LayoutGrid className="w-5 h-5" />, label: "Гол. Категорії" },
     { href: "/admin/blog", icon: <Tag className="w-5 h-5" />, label: "Блог" },
+    { href: "/admin/promocodes", icon: <Tag className="w-5 h-5" />, label: "Промокоди" },
     { href: "/admin/reviews", icon: <Star className="w-5 h-5" />, label: "Відгуки" },
     { href: "/admin/size-charts", icon: <Ruler className="w-5 h-5" />, label: "Розмірні сітки" },
     { href: "/admin/collections", icon: <Gem className="w-5 h-5" />, label: "Колекції" },
