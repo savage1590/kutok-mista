@@ -146,13 +146,16 @@ export async function processOrder(orderData: OrderData) {
     
     // Update promo code usage count if used
     if (validPromoCode) {
-      await supabaseAdmin.rpc('increment_promo_usage', { promo_code: validPromoCode }).catch(() => {
+      try {
+        const { error: rpcError } = await supabaseAdmin.rpc('increment_promo_usage', { promo_code: validPromoCode });
+        if (rpcError) throw rpcError;
+      } catch (err) {
         // Fallback if rpc is not created: manually fetch and update (less safe for concurrency, but works)
-        supabaseAdmin.from('promo_codes').select('used_count').eq('code', validPromoCode).single()
-          .then(({data}) => {
-             if(data) supabaseAdmin.from('promo_codes').update({used_count: data.used_count + 1}).eq('code', validPromoCode).then()
-          });
-      });
+        const { data } = await supabaseAdmin.from('promo_codes').select('used_count').eq('code', validPromoCode).single();
+        if (data) {
+          await supabaseAdmin.from('promo_codes').update({ used_count: data.used_count + 1 }).eq('code', validPromoCode);
+        }
+      }
     }
 
     // 4. Attach order_id to items and insert
